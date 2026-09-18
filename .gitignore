@@ -1,0 +1,43 @@
+# Dependencies & Virtual Environments
+node_modules/
+.venv/
+*/.venv/
+venv/
+ENV/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Build Output
+dist/
+build/
+*.egg-info/
+
+# Environment Files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+prediction_log.txt
+human-monkey/prediction_log.txt
+
+# Dataset & Model Artifacts
+traced_model.pt
+**/my_model/data/images/
+**/my_model/train/
+
+# IDE / Editor Settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS Temporary Files
+.DS_Store
+Thumbs.db

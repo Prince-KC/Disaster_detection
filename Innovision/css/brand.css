@@ -1,0 +1,20 @@
+/* Shared KhetRakshak brand treatment used across every page. */
+.logo-mark,
+.brand-mark {
+  background-color: var(--lime, #b7e36f) !important;
+  background-image: url('../assets/khet-rakshak-logo.jpg') !important;
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  transform: none !important;
+}
+
+.logo-mark .logo-symbol,
+.brand-mark .brand-symbol {
+  opacity: 0 !important;
+}
+
+.logo,
+.brand {
+  text-transform: capitalize;
+}

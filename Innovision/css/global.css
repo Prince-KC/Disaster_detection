@@ -1,0 +1,113 @@
+/*
+  global.css - Base resets, typography, and global components for khetRakshak
+*/
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body { 
+  margin: 0; 
+  color: var(--ink); 
+  background: var(--paper); 
+  font-family: var(--font-body); 
+  line-height: 1.5; 
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, p { margin: 0; }
+
+h1, h2, h3, h4, .logo, .page-title, .brand { 
+  font-family: var(--font-heading); 
+  line-height: 1.2; 
+  letter-spacing: -0.02em; 
+}
+
+a { 
+  color: inherit; 
+  text-decoration: none; 
+  transition: var(--transition-fast);
+}
+
+button, input, select, textarea { 
+  font-family: inherit; 
+  border: 0;
+  outline: 0;
+}
+
+button { 
+  cursor: pointer; 
+  transition: var(--transition-fast);
+}
+
+/* Base Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  transition: var(--transition-smooth);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  color: #fff;
+  background: var(--green);
+  box-shadow: 0 4px 14px rgba(21, 128, 61, 0.2);
+}
+
+.btn-primary:hover {
+  background: var(--green-600);
+  box-shadow: 0 6px 20px rgba(21, 128, 61, 0.3);
+}
+
+.btn-dark {
+  color: #fff;
+  background: var(--deep);
+}
+
+.btn-dark:hover {
+  background: var(--ink);
+}
+
+.btn-ghost {
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--line);
+}
+
+.btn-ghost:hover {
+  background: var(--white);
+  border-color: var(--muted);
+}
+
+/* Loading animations */
+.fade {
+  animation: fade 0.5s ease both;
+}
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Glassmorphism utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+body.dark .glass {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}

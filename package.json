@@ -1,0 +1,25 @@
+{
+  "name": "innovision",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Innovision with Supabase authentication",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "start": "concurrently --kill-others --names \"FLASK,VITE\" --prefix-colors \"yellow,cyan\" \"cd human-monkey && .venv\\\\Scripts\\\\python app.py\" \"vite --host 0.0.0.0\"",
+    "start:flask": "cd human-monkey && .venv\\Scripts\\python app.py",
+    "start:vite": "vite --host 0.0.0.0",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.53.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^10.0.4",
+    "vite": "^5.4.10"
+  }
+}

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monkey Detector – Live Webcam</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+      background: linear-gradient(90deg, #a8edea, #fed6e3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 28px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    button {
+      padding: 12px 28px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
+      letter-spacing: 0.3px;
+    }
+
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    #startBtn {
+      background: linear-gradient(135deg, #11998e, #38ef7d);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(56,239,125,0.3);
+    }
+    #startBtn:not(:disabled):hover { box-shadow: 0 6px 28px rgba(56,239,125,0.5); }
+
+    #stopBtn {
+      background: linear-gradient(135deg, #c0392b, #e74c3c);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(231,76,60,0.3);
+    }
+    #stopBtn:not(:disabled):hover { box-shadow: 0 6px 28px rgba(231,76,60,0.5); }
+
+    /* Video wrapper */
+    .video-wrapper {
+      position: relative;
+      width: 640px;
+      max-width: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+    }
+
+    #videoStream {
+      width: 100%;
+      height: 480px;
+      object-fit: cover;
+      display: block;
+      background: #000;
+    }
+
+    /* Placeholder shown when stream is off */
+    #placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.7);
+      gap: 12px;
+      pointer-events: none;
+    }
+    #placeholder svg { opacity: 0.35; }
+    #placeholder span { font-size: 0.9rem; color: rgba(255,255,255,0.4); }
+    #placeholder.hidden { display: none; }
+
+    /* Status badge */
+    #statusBadge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: none;
+    }
+    #statusBadge.live {
+      display: block;
+      background: rgba(56,239,125,0.2);
+      border: 1px solid #38ef7d;
+      color: #38ef7d;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐒 Monkey Detector</h1>
+  <p class="subtitle">Real-time YOLO webcam detection with Arduino relay control</p>
+
+  <div class="controls">
+    <button id="startBtn">▶ Start Detection</button>
+    <button id="stopBtn" disabled>■ Stop Detection</button>
+  </div>
+
+  <div class="video-wrapper">
+    <img id="videoStream" alt="" />
+
+    <div id="placeholder">
+      <svg width="64" height="64" fill="none" viewBox="0 0 24 24">
+        <path stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+          d="M15 10l4.553-2.277A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+      </svg>
+      <span>Press Start Detection to begin</span>
+    </div>
+
+    <div id="statusBadge">● LIVE</div>
+  </div>
+
+  <script>
+    const startBtn     = document.getElementById('startBtn');
+    const stopBtn      = document.getElementById('stopBtn');
+    const video        = document.getElementById('videoStream');
+    const placeholder  = document.getElementById('placeholder');
+    const statusBadge  = document.getElementById('statusBadge');
+
+    startBtn.addEventListener('click', () => {
+      startBtn.disabled = true;
+      fetch('/start', { method: 'POST' })
+        .then(r => {
+          if (r.ok) {
+            // Cache-bust the src so the browser reloads the stream
+            video.src = '/video_feed?' + Date.now();
+            placeholder.classList.add('hidden');
+            statusBadge.classList.add('live');
+            stopBtn.disabled = false;
+          } else {
+            r.text().then(t => alert('Failed to start: ' + t));
+            startBtn.disabled = false;
+          }
+        })
+        .catch(err => {
+          alert('Server error: ' + err);
+          startBtn.disabled = false;
+        });
+    });
+
+    stopBtn.addEventListener('click', () => {
+      stopBtn.disabled = true;
+      video.src = '';
+      placeholder.classList.remove('hidden');
+      statusBadge.classList.remove('live');
+      fetch('/stop', { method: 'POST' })
+        .then(() => { startBtn.disabled = false; })
+        .catch(() => { startBtn.disabled = false; });
+    });
+
+    // Only stop when the tab is actually closed (not on refresh)
+    window.addEventListener('pagehide', () => {
+      if (!document.hidden) return;  // skip if just navigating within same tab
+      navigator.sendBeacon('/stop');
+    });
+  </script>
+</body>
+</html>
