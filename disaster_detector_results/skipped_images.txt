@@ -1,0 +1,384 @@
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/gettyimages-114313754-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/gettyimages-2152635470-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/gettyimages-2183192373-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/gettyimages-2217103280-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/gettyimages-2290557830-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/gettyimages-509497499-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/gettyimages-713580365-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (100).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (11).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (14).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (20).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (21).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (24).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (25).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (28).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (3).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (30).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (34).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (35).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (4).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (42).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (46).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (48).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (57).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (58).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (59).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (61).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (64).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (68).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (7).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (70).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (73).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (78).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (81).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (86).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (9).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (90).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (91).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (93).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (97).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images (99).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081423.241.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081427.400.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081428.448.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081430.339.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081434.384.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081437.507.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081438.372.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081440.364.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081441.237.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081443.317.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081444.327.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081447.326.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081449.336.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081450.329.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081451.320.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081452.242.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081458.315.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081506.379.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081507.252.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081508.321.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081511.472.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081514.352.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081515.325.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081516.436.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081518.351.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081520.320.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081522.378.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081523.327.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081606.392.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081632.159.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081632.800.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081633.615.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081634.044.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081636.766.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081640.323.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081641.363.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081642.378.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081643.341.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081644.707.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081646.375.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081648.253.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081649.375.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081650.344.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081652.351.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081653.342.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081654.260.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081658.324.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081704.565.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081711.338.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/flood-images1/flood/images - 2026-09-19T081713.420.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/1-1-_jpg.rf.b1e861dc210b3f625c2b70deab8608c7.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/1_student_jpg.rf.0ee1da5de039d9a2b405685eccddd3f6.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/1b644262-d2f8-4e73-bde5-f23a68b962a0-dn26405SemiAx_06_jpg.rf.b5df8cdae2721b0fdec5484f71229a89.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/_131924385_whatsappimage2023-12-05at11-50-01am-1_jpg.rf.7c5ade96970f8cca4c348f31c436ef6b.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/images (10).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_111_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_114_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_130_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_13_images (2).jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_13_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_141_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_147_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_169_Butwal-Narayangadh-road-section-2.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_180_newindianexpress_2F2026-02-23_2Ftgjla5nt_2F202602233684035.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_191_Tanahun.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_195_636ce3df9c7e80680e09667ajpeg.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_196_Bike_accident_VWqx6SZFgL.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_199_Dhading-accident.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_19_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_200_636ce3f09c7e80680e096680jpeg.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_202_636d184e9c7e80680e0ac7bajpeg.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_203_FO7mO3CagAQshz2-1648473958.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_209_11111.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_209_FO7mO3CagAQshz2-1648473958.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_20_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_211_20230909030920_62d2d85b147db73623ba67ca6cc8046b6d6ef67973d40f8feabf2838320f86b3.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_217_5ANJW6M2QRN7POFZAENVQF5CJU.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_218_Doti-Bus-Accident.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_219_21f62a40-6130-11ef-bde7-4fd43dc8559b.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_221_Road-accidents.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_229_Dang-bus-accident.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_235_np_file_205143.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_238_Bike-1773042164.webp	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_242_Kalanki-accident.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_252_bus-road-coach-accident-in-ravine-kathmandu-valley-nepal-asia-view-BAJH1K.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_254_49074.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_264_61168bb4b24649b29eb6be3d101fb653_18.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_26_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_275_skynews-nepal-abukhaireni-bus-crash_6663815.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_28_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_29_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_307_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_341_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_352_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_362_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_36_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_38_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_39_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_41_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_441_FO7mO3CagAQshz2-1648473958.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_448_Killer_roads_YpWtG63Vbo.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_44_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_452_bus-road-coach-accident-in-ravine-kathmandu-valley-nepal-asia-view-BAJH1K.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_47_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_481_thumb8-1703488115.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_491_recovering-a-truck-that-went-over-the-side-of-a-mountain-road-in-nepal-DC2MC6.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_496_Narayangadh-Butwal-Road-Under-Construction-5-1024x683-1.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_498_12nepal-landslide-cztk-videoSixteenByNineJumbo1600.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_504_nepal.jpg.webp	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_50_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_69_default.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_72_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_92_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_93_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/imgi_97_images.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/road-accident-images1/road_accident/accident/zajira-in-shariatpur-accident-1_jpeg_jpg.rf.e8f05bebcc52b753258725558f48f91d.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/Screenshot 2026-09-17 at 11.25.39.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/Screenshot 2026-09-17 at 11.26.11.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/Screenshot 2026-09-18 at 11.25.05.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1007416476-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1022258772-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1126875901-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1139186154-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1153372674-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1153372732-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1167988591-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1186505802-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1196712765-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1198949688-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1259223992-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1271634077-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1271651157-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1281389627-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1281740218-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1329940102-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1331110821-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1331110857-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1332531910-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1334503845-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1334503869-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1334503919-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1334504003-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1338581127-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1338581892-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1338581913-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1340128035-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1340128088-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1340128732-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1340131484-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1351737193-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1390905863-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-139987703-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1411016247-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1411822224-640x640.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1411831360-640x640.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1475133456-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1475133460-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1475133632-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1475133655-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1480387373-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1494679897-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1499812864-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1680651757-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-1680654591-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-172486103-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-176015153-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-177779959-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-181856527-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2044636928-640x640.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2107198760-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2144802313-640x640.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2152689536-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2163794784-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2167317988-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2174463181-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2177232257-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2177233522-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2177234355-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2177234453-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2177234478-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2177236073-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2185364415-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2215292955-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2233196994-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2237262697-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2253905715-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2262977518-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2267255623-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2270963706-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2272180574-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2280212415-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2289682019-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-2293213185-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-475916426-640x640.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-497430461-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-537675921-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-578530786-640x640.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-843737940-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-875124988-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-875677540-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-894550630-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-960031532-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/forest-fire-images1/forest_fire/istockphoto-960031542-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 053511.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 053618.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 053631.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 053723.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 053736.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 053834.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 053903.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 053959.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054041.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054101.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054126.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054234.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054344.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054405.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054435.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054452.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054509.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054519.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054536.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054555.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054721.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054746.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054751.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054801.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054825.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054834.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054844.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 054918.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055009.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055029.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055038.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055049.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055111.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055121.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055150.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055230.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055238.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055257.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055326.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055458.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055510.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055557.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055619.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 055653.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-17 061418.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113322.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113338.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113351.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113359.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113407.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113416.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113426.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113435.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113531.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113536.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113544.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113657.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113716.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113744.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113757.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113850.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 113930.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 114006.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 114013.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 114024.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 114029.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 114057.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 114153.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 114249.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 114309.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 114326.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 114332.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 114357.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 114455.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 121657.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 121740.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 121757.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 121808.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 121815.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 121934.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 122003.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 122139.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 122148.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 125017.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/Screenshot 2026-09-18 125412.png	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1291010925-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1301252345-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1334236060-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1334488273-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1363643302-170x170.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-141865301-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1438591450-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1438591584-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1438591602-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1438878980-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1438879017-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1455352884-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1494332445-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1494332664-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1781789067-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1781790195-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1781791307-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1785230292-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-186876633-170x170.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-186876633-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-1963655500-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2052604538-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2172383921-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2172383922-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2172383926-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2172384034-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2172384044-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2172384182-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2172384286-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2172384293-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2172384296-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2172384429-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2172384535-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2172384644-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2172384651-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2219712257-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2227550574-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2270592701-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2274587687-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2281644400-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2288260124-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-2290331664-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-498435669-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-501659267-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-520203848-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-529575196-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-533262408-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-539970405-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-583904102-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-627299246-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-997673088-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-997675968-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-997679376-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-997679398-612x612.jpg	SAM 3 found nothing
+/kaggle/input/datasets/prachimagar12/landslide-images1/landslide/landside/gettyimages-rh718-73-612x612.jpg	SAM 3 found nothing

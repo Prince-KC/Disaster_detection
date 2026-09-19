@@ -1,0 +1,8 @@
+train: /kaggle/working/dataset/images/train
+val: /kaggle/working/dataset/images/val
+nc: 4
+names:
+  0: flood
+  1: road_accident
+  2: forest_fire
+  3: landslide
