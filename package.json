@@ -7,9 +7,9 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "start": "concurrently --kill-others --names \"FLASK,VITE\" --prefix-colors \"yellow,cyan\" \"cd human-monkey && .venv\\\\Scripts\\\\python app.py\" \"vite --host 0.0.0.0\"",
-    "start:flask": "cd human-monkey && .venv\\Scripts\\python app.py",
-    "start:vite": "vite --host 0.0.0.0",
+    "start": "concurrently --kill-others --names \"FLASK,VITE\" --prefix-colors \"yellow,cyan\" \"cd human-monkey && python3 -m venv .venv >/dev/null 2>&1 || true && . .venv/bin/activate && python -m pip install --disable-pip-version-check -r requirements.txt >/tmp/resq_flask_setup.log 2>&1 || true && python app.py\" \"npx vite --host 0.0.0.0\"",
+    "start:flask": "cd human-monkey && python3 -m venv .venv >/dev/null 2>&1 || true && . .venv/bin/activate && python -m pip install --disable-pip-version-check -r requirements.txt >/tmp/resq_flask_setup.log 2>&1 || true && python app.py",
+    "start:vite": "npx vite --host 0.0.0.0",
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
