@@ -35,7 +35,8 @@ SMS_COOLDOWN_SECONDS = 15    # minimum seconds between Telegram alerts per camer
 
 # Resolve model path: try detection_model/my_model/best.pt relative to project root
 _SCRIPT_DIR   = os.path.dirname(os.path.abspath(__file__))
-_PROJECT_ROOT = os.path.abspath(os.path.join(_SCRIPT_DIR, "..", "..", "..", ".."))
+_PROJECT_ROOT = os.path.abspath(os.path.join(_SCRIPT_DIR, "..", "..", ".."))
+
 _MODEL_CANDIDATES = [
     os.path.join(_PROJECT_ROOT, "detection_model", "my_model", "best.pt"),
     os.path.join(_PROJECT_ROOT, "detection_model", "my_model", "my_model.pt"),
