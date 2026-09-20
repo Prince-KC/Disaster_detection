@@ -264,71 +264,59 @@ async def get_analytics():
 
 
 # ============================================================================
-# Camera Stream Manager with integrated Disaster Detection
+# Camera Stream Manager — SPLIT THREAD ARCHITECTURE
+#
+# Camera thread  : captures frames at ~30fps, encodes JPEG → never blocked
+# Inference thread: runs YOLO asynchronously → never blocks the camera thread
+# Result is shared via locks; annotations overlay the latest result on every frame
 # ============================================================================
 class CameraStreamManager:
     """
-    Thread-safe camera stream manager for multi-camera streaming (Index 0: Laptop, Index 1: Webcam).
-    Runs YOLO disaster detection every DETECT_EVERY frames with DEBOUNCE_FRAMES
-    consecutive-positive gate before firing Telegram alerts.
-    Provides HD frames (1280x720) with annotated overlays and JPEG quality 92.
+    Thread-safe, dual-thread camera manager.
+    - _camera_worker: grabs frames from hardware at ~30fps and encodes annotated JPEG
+    - _inference_worker: reads the latest raw frame and runs YOLO asynchronously
+
+    Video display is NEVER blocked by inference; inference updates the overlay
+    in the background and the camera thread uses whatever result is current.
     """
 
     def __init__(self):
-        self._threads:       Dict[int, threading.Thread] = {}
-        self._locks:         Dict[int, threading.Lock]   = {}
-        self._result_locks:  Dict[int, threading.Lock]   = {}
-        self._latest_jpeg:   Dict[int, bytes]            = {}
-        self._online_status: Dict[int, bool]             = {}
+        self._cam_threads:   Dict[int, threading.Thread] = {}
+        self._inf_threads:   Dict[int, threading.Thread] = {}
+        self._frame_locks:   Dict[int, threading.Lock]   = {}   # guards latest raw frame
+        self._result_locks:  Dict[int, threading.Lock]   = {}   # guards last inference result
+        self._jpeg_locks:    Dict[int, threading.Lock]   = {}   # guards encoded JPEG
         self._stop_events:   Dict[int, threading.Event]  = {}
+        self._latest_frame:  Dict[int, Optional[np.ndarray]] = {}
+        self._latest_jpeg:   Dict[int, bytes]            = {}
         self._last_result:   Dict[int, Optional[Dict]]   = {}
+        self._online_status: Dict[int, bool]             = {}
         self._init_lock = threading.Lock()
 
+    # ------------------------------------------------------------------
     def _create_standby_frame(self, camera_id: int) -> bytes:
         img = np.zeros((720, 1280, 3), dtype=np.uint8)
-        img[:] = (24, 28, 26)  # Dark slate background matching UI
+        img[:] = (24, 28, 26)
+        cam_label = "Laptop Camera (Index 0)" if camera_id == 0 else "External USB Webcam (Index 1)"
+        cv2.putText(img, f"CAM-0{camera_id + 1} — {cam_label}",
+                    (60, 320), cv2.FONT_HERSHEY_SIMPLEX, 1.1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(img, "Status: Standby / Waiting for connection...",
+                    (60, 375), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (120, 180, 150), 2, cv2.LINE_AA)
+        cv2.putText(img, f"Bagmati Monitoring Grid — {time.strftime('%Y-%m-%d %H:%M:%S')}",
+                    (60, 430), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (160, 165, 160), 1, cv2.LINE_AA)
+        _, enc = cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 90])
+        return enc.tobytes()
 
-        cam_label = "Laptop Integrated Camera (Index 0)" if camera_id == 0 else "External USB Webcam (Index 1)"
-        cv2.putText(img, f"CAM-0{camera_id + 1} - {cam_label}", (60, 320), cv2.FONT_HERSHEY_SIMPLEX, 1.1, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(img, "Status: Standby / Waiting for connection...", (60, 375), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (120, 180, 150), 2, cv2.LINE_AA)
-        cv2.putText(img, f"Bagmati Monitoring Grid - {time.strftime('%Y-%m-%d %H:%M:%S')}", (60, 430), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (160, 165, 160), 1, cv2.LINE_AA)
-
-        _, encoded = cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 90])
-        return encoded.tobytes()
-
-    def _run_inference(self, frame: np.ndarray) -> List[Dict]:
-        """Run YOLO inference on a frame. Returns list of detection dicts."""
-        if _disaster_model is None:
-            return []
-        try:
-            with _inference_lock:
-                results = _disaster_model(frame, verbose=False, conf=CONF_THRES)
-            detections = []
-            if results and len(results[0].boxes) > 0:
-                for box in results[0].boxes:
-                    xyxy     = box.xyxy[0].cpu().numpy().astype(int).tolist()
-                    conf     = float(box.conf[0].item())
-                    cls_id   = int(box.cls[0].item())
-                    cls_name = _disaster_class_names.get(cls_id, f"class_{cls_id}")
-                    detections.append({
-                        "bbox":     xyxy,
-                        "conf":     conf,
-                        "cls_id":   cls_id,
-                        "cls_name": cls_name,
-                    })
-            return detections
-        except Exception as exc:
-            logger.debug(f"Inference error: {exc}")
-            return []
-
-    def _annotate_frame(self, frame: np.ndarray, result: Optional[Dict],
-                         camera_id: int) -> np.ndarray:
-        """Draw bounding boxes + status overlay on a frame copy."""
+    # ------------------------------------------------------------------
+    def _annotate(self, frame: np.ndarray, result: Optional[Dict],
+                  camera_id: int) -> np.ndarray:
+        """Draw bounding boxes and status text onto a copy of frame."""
         display  = frame.copy()
         cam_name = "CAM-01 (Laptop)" if camera_id == 0 else "CAM-02 (Webcam)"
 
         if result is None:
-            cv2.putText(display, f"{cam_name} LIVE  |  {time.strftime('%Y-%m-%d %H:%M:%S')}",
+            cv2.putText(display,
+                        f"{cam_name}  LIVE  |  {time.strftime('%H:%M:%S')}",
                         (18, 38), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 255, 128), 2, cv2.LINE_AA)
             return display
 
@@ -338,84 +326,81 @@ class CameraStreamManager:
 
         for det in detections:
             x1, y1, x2, y2 = det["bbox"]
-            conf   = det["conf"]
-            cname  = det["cls_name"]
-            _, display_label = DISASTER_DISPLAY.get(
-                cname.lower().replace(" ", "_"), ("X", cname.upper()))
+            conf  = det["conf"]
+            cname = det["cls_name"]
+            _, lbl = DISASTER_DISPLAY.get(cname.lower().replace(" ", "_"), ("X", cname.upper()))
             color = (0, 0, 255) if debounced else (0, 255, 255)
-            label = f"{display_label}: {conf * 100:.1f}%"
+            text  = f"{lbl}: {conf * 100:.1f}%"
             cv2.rectangle(display, (x1, y1), (x2, y2), color, 2)
-            (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
-            lbl_y = max(y1 - 8, th + 8)
-            cv2.rectangle(display, (x1, lbl_y - th - 6), (x1 + tw + 6, lbl_y + 2), color, -1)
-            cv2.putText(display, label, (x1 + 3, lbl_y - 3),
+            (tw, th), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
+            ly = max(y1 - 8, th + 8)
+            cv2.rectangle(display, (x1, ly - th - 6), (x1 + tw + 6, ly + 2), color, -1)
+            cv2.putText(display, text, (x1 + 3, ly - 3),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
         if debounced and detections:
-            top_cls = detections[0]["cls_name"].upper()
-            cv2.putText(display, f"ALERT: {top_cls} DETECTED [{count}/{DEBOUNCE_FRAMES}]",
+            top = detections[0]["cls_name"].upper()
+            cv2.putText(display, f"🚨 ALERT: {top} [{count}/{DEBOUNCE_FRAMES}]",
                         (10, 38), cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0, 0, 255), 2, cv2.LINE_AA)
         elif detections:
             cv2.putText(display, f"VERIFYING... [{count}/{DEBOUNCE_FRAMES}]",
                         (10, 38), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 255), 2, cv2.LINE_AA)
         else:
-            cv2.putText(display, f"{cam_name} LIVE  |  {time.strftime('%Y-%m-%d %H:%M:%S')}",
+            cv2.putText(display,
+                        f"{cam_name}  LIVE  |  {time.strftime('%H:%M:%S')}",
                         (18, 38), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 255, 128), 2, cv2.LINE_AA)
         return display
 
-    def _worker(self, camera_id: int):
-        logger.info(f"Starting dedicated camera worker for camera index {camera_id}")
-        cap              = None
+    # ------------------------------------------------------------------
+    def _camera_worker(self, camera_id: int):
+        """
+        CAMERA THREAD — pure capture + encode loop. ~30fps.
+        No inference here. Just reads camera, overlays last result, encodes JPEG.
+        """
+        logger.info(f"[CamThread {camera_id}] Starting camera capture thread")
+        cap = None
         consecutive_errors = 0
-        frame_counter    = 0
-        debounce_count   = 0
-        last_sms_time    = 0.0
 
         while not self._stop_events[camera_id].is_set():
-            # ---- Open / reconnect camera ----
+            # ---- open / reconnect ----
             if cap is None or not cap.isOpened():
                 try:
                     cap = cv2.VideoCapture(camera_id, cv2.CAP_DSHOW)
                     if not cap.isOpened():
                         cap = cv2.VideoCapture(camera_id)
                 except Exception as e:
-                    logger.debug(f"Camera {camera_id} capture init exception: {e}")
+                    logger.debug(f"[CamThread {camera_id}] open error: {e}")
                     cap = None
 
                 if cap and cap.isOpened():
                     try:
                         cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-                    except Exception:
-                        pass
-                    try:
-                        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+                        cap.set(cv2.CAP_PROP_FRAME_WIDTH,  1280)
                         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-                        cap.set(cv2.CAP_PROP_FPS, 30)
-                        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+                        cap.set(cv2.CAP_PROP_FPS,          30)
+                        cap.set(cv2.CAP_PROP_BUFFERSIZE,   1)  # keep buffer tiny → minimal latency
                     except Exception:
                         pass
                     self._online_status[camera_id] = True
                     consecutive_errors = 0
-                    logger.info(f"Camera index {camera_id} connected successfully.")
+                    logger.info(f"[CamThread {camera_id}] camera connected.")
                 else:
                     self._online_status[camera_id] = False
-                    standby = self._create_standby_frame(camera_id)
-                    with self._locks[camera_id]:
-                        self._latest_jpeg[camera_id] = standby
-                    time.sleep(1.2)
+                    with self._jpeg_locks[camera_id]:
+                        self._latest_jpeg[camera_id] = self._create_standby_frame(camera_id)
+                    time.sleep(1.0)
                     continue
 
-            # ---- Read frame ----
+            # ---- read ----
             try:
                 ret, frame = cap.read()
-            except Exception as read_err:
+            except Exception as e:
                 ret, frame = False, None
-                logger.debug(f"Frame read exception on camera {camera_id}: {read_err}")
 
             if not ret or frame is None:
                 consecutive_errors += 1
-                if consecutive_errors > 8:
-                    logger.warning(f"Camera {camera_id} consecutive read failures. Re-initializing...")
+                if consecutive_errors > 10:
+                    logger.warning(f"[CamThread {camera_id}] too many read failures, re-opening")
                     try:
                         cap.release()
                     except Exception:
@@ -423,112 +408,173 @@ class CameraStreamManager:
                     cap = None
                     self._online_status[camera_id] = False
                     consecutive_errors = 0
-                time.sleep(0.08)
+                time.sleep(0.05)
                 continue
 
             consecutive_errors = 0
             self._online_status[camera_id] = True
-            frame_counter += 1
 
-            # ---- Disaster detection every DETECT_EVERY frames ----
-            current_result = None
+            # share raw frame with inference thread (non-blocking copy)
+            with self._frame_locks[camera_id]:
+                self._latest_frame[camera_id] = frame
+
+            # fetch the last inference result (never waits for inference)
             with self._result_locks[camera_id]:
-                current_result = self._last_result.get(camera_id)
+                result = self._last_result.get(camera_id)
 
-            if frame_counter % DETECT_EVERY == 0 and _disaster_model is not None:
-                detections     = self._run_inference(frame)
-                disaster_found = len(detections) > 0
-                best_conf      = max((d["conf"] for d in detections), default=0.0)
-
-                if disaster_found:
-                    debounce_count += 1
-                else:
-                    debounce_count = 0
-
-                debounced = debounce_count >= DEBOUNCE_FRAMES
-                result = {
-                    "detections":        detections,
-                    "debounced":         debounced,
-                    "consecutive_count": debounce_count,
-                    "best_conf":         best_conf,
-                }
-                with self._result_locks[camera_id]:
-                    self._last_result[camera_id] = result
-                current_result = result
-
-                # ---- Fire Telegram alert on confirmed debounced detection ----
-                if debounced and (time.time() - last_sms_time >= SMS_COOLDOWN_SECONDS):
-                    last_sms_time = time.time()
-                    top = detections[0]
-                    ok, buf = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
-                    img_bytes = buf.tobytes() if ok else None
-                    threading.Thread(
-                        target=_send_telegram_alert,
-                        args=(camera_id + 1, top["cls_name"], top["conf"], img_bytes),
-                        daemon=True
-                    ).start()
-                    logger.warning(
-                        f"[Cam {camera_id}] DISASTER CONFIRMED: {top['cls_name']} "
-                        f"({top['conf']:.1%}) — Telegram alert dispatched."
-                    )
-
-            # ---- Annotate + encode JPEG ----
-            annotated = self._annotate_frame(frame, current_result, camera_id)
-            ok, encoded = cv2.imencode('.jpg', annotated, [cv2.IMWRITE_JPEG_QUALITY, 92])
+            # annotate + encode (fast CPU ops, never blocks on YOLO)
+            annotated = self._annotate(frame, result, camera_id)
+            ok, enc = cv2.imencode('.jpg', annotated, [cv2.IMWRITE_JPEG_QUALITY, 88])
             if ok:
-                with self._locks[camera_id]:
-                    self._latest_jpeg[camera_id] = encoded.tobytes()
+                with self._jpeg_locks[camera_id]:
+                    self._latest_jpeg[camera_id] = enc.tobytes()
 
-            time.sleep(0.033)  # ~30 fps
+            # no sleep here — let the camera read at full hardware speed;
+            # the encode time (~2-4ms) provides natural pacing
 
         if cap and cap.isOpened():
             try:
                 cap.release()
             except Exception:
                 pass
+        logger.info(f"[CamThread {camera_id}] stopped.")
 
+    # ------------------------------------------------------------------
+    def _inference_worker(self, camera_id: int):
+        """
+        INFERENCE THREAD — runs YOLO on the latest frame, completely independent
+        of the camera thread. Speed limited only by the model, not the stream.
+        """
+        logger.info(f"[InfThread {camera_id}] Starting inference thread")
+        debounce_count = 0
+        last_sms_time  = 0.0
+
+        while not self._stop_events[camera_id].is_set():
+            if _disaster_model is None:
+                time.sleep(0.5)
+                continue
+
+            # grab latest frame (non-blocking)
+            with self._frame_locks[camera_id]:
+                frame = self._latest_frame.get(camera_id)
+
+            if frame is None:
+                time.sleep(0.05)
+                continue
+
+            # run YOLO (this is the slow step — happens on its own thread)
+            try:
+                with _inference_lock:
+                    results = _disaster_model(frame, verbose=False, conf=CONF_THRES)
+                detections = []
+                if results and len(results[0].boxes) > 0:
+                    for box in results[0].boxes:
+                        xyxy     = box.xyxy[0].cpu().numpy().astype(int).tolist()
+                        conf     = float(box.conf[0].item())
+                        cls_id   = int(box.cls[0].item())
+                        cls_name = _disaster_class_names.get(cls_id, f"class_{cls_id}")
+                        detections.append({"bbox": xyxy, "conf": conf,
+                                           "cls_id": cls_id, "cls_name": cls_name})
+            except Exception as exc:
+                logger.debug(f"[InfThread {camera_id}] inference error: {exc}")
+                time.sleep(0.1)
+                continue
+
+            # debounce
+            if detections:
+                debounce_count += 1
+            else:
+                debounce_count = 0
+
+            debounced = debounce_count >= DEBOUNCE_FRAMES
+            best_conf = max((d["conf"] for d in detections), default=0.0)
+
+            # store result for camera thread to overlay
+            with self._result_locks[camera_id]:
+                self._last_result[camera_id] = {
+                    "detections":        detections,
+                    "debounced":         debounced,
+                    "consecutive_count": debounce_count,
+                    "best_conf":         best_conf,
+                }
+
+            # Telegram alert on confirmed detection
+            if debounced and detections and (time.time() - last_sms_time >= SMS_COOLDOWN_SECONDS):
+                last_sms_time = time.time()
+                top = detections[0]
+                with self._frame_locks[camera_id]:
+                    snap = self._latest_frame.get(camera_id)
+                img_bytes = None
+                if snap is not None:
+                    ok, buf = cv2.imencode('.jpg', snap, [cv2.IMWRITE_JPEG_QUALITY, 85])
+                    if ok:
+                        img_bytes = buf.tobytes()
+                threading.Thread(
+                    target=_send_telegram_alert,
+                    args=(camera_id + 1, top["cls_name"], top["conf"], img_bytes),
+                    daemon=True
+                ).start()
+                logger.warning(
+                    f"[InfThread {camera_id}] DISASTER CONFIRMED: "
+                    f"{top['cls_name']} ({top['conf']:.1%}) — Telegram dispatched."
+                )
+
+            # no fixed sleep — run as fast as the model allows
+            # (typically 5-20 FPS on CPU; stream stays at 30fps regardless)
+
+        logger.info(f"[InfThread {camera_id}] stopped.")
+
+    # ------------------------------------------------------------------
     def ensure_camera(self, camera_id: int):
         with self._init_lock:
-            if camera_id not in self._threads or not self._threads[camera_id].is_alive():
-                self._locks[camera_id]         = threading.Lock()
-                self._result_locks[camera_id]  = threading.Lock()
-                self._stop_events[camera_id]   = threading.Event()
-                self._online_status[camera_id] = False
-                self._latest_jpeg[camera_id]   = self._create_standby_frame(camera_id)
-                self._last_result[camera_id]   = None
+            need_start = (
+                camera_id not in self._cam_threads
+                or not self._cam_threads[camera_id].is_alive()
+            )
+            if not need_start:
+                return
 
-                t = threading.Thread(
-                    target=self._worker,
-                    args=(camera_id,),
-                    daemon=True,
-                    name=f"CameraWorker_{camera_id}"
-                )
-                self._threads[camera_id] = t
-                t.start()
+            # initialise shared state
+            self._frame_locks[camera_id]  = threading.Lock()
+            self._result_locks[camera_id] = threading.Lock()
+            self._jpeg_locks[camera_id]   = threading.Lock()
+            self._stop_events[camera_id]  = threading.Event()
+            self._online_status[camera_id] = False
+            self._latest_frame[camera_id]  = None
+            self._latest_jpeg[camera_id]   = self._create_standby_frame(camera_id)
+            self._last_result[camera_id]   = None
+
+            # camera thread
+            ct = threading.Thread(target=self._camera_worker, args=(camera_id,),
+                                  daemon=True, name=f"CamThread_{camera_id}")
+            self._cam_threads[camera_id] = ct
+            ct.start()
+
+            # inference thread (only if model is loaded)
+            if _disaster_model is not None:
+                it = threading.Thread(target=self._inference_worker, args=(camera_id,),
+                                      daemon=True, name=f"InfThread_{camera_id}")
+                self._inf_threads[camera_id] = it
+                it.start()
 
     def get_jpeg_frame(self, camera_id: int) -> bytes:
         self.ensure_camera(camera_id)
-        with self._locks.get(camera_id, self._init_lock):
+        with self._jpeg_locks.get(camera_id, self._init_lock):
             return self._latest_jpeg.get(camera_id, self._create_standby_frame(camera_id))
 
     def get_status(self) -> Dict[str, Any]:
         return {
             "cameras": [
-                {
-                    "id": 0,
-                    "name": "CAM-01 (Laptop Camera)",
-                    "type": "Integrated",
-                    "online": self._online_status.get(0, False)
-                },
-                {
-                    "id": 1,
-                    "name": "CAM-02 (USB Webcam)",
-                    "type": "External",
-                    "online": self._online_status.get(1, False)
-                }
+                {"id": 0, "name": "CAM-01 (Laptop Camera)", "type": "Integrated",
+                 "online": self._online_status.get(0, False)},
+                {"id": 1, "name": "CAM-02 (USB Webcam)",    "type": "External",
+                 "online": self._online_status.get(1, False)},
             ],
             "total": 2,
-            "online_count": sum(1 for v in [self._online_status.get(0, False), self._online_status.get(1, False)] if v)
+            "online_count": sum(
+                1 for v in [self._online_status.get(0, False),
+                             self._online_status.get(1, False)] if v
+            )
         }
 
 
@@ -536,33 +582,25 @@ camera_stream_manager = CameraStreamManager()
 
 
 def generate_camera_stream(camera_id: int = 0):
-    """Generator function that yields MJPEG HTTP stream from the requested camera."""
+    """Generator that yields an endless MJPEG stream for the given camera."""
     camera_stream_manager.ensure_camera(camera_id)
     while True:
         frame_bytes = camera_stream_manager.get_jpeg_frame(camera_id)
         if frame_bytes:
             yield (b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-        time.sleep(0.033)
+        time.sleep(0.033)   # ~30fps pacing for the HTTP generator
 
 
-@router.get(
-    "/video_feed",
-    summary="Live Camera MJPEG Stream",
-    tags=["Live Feed"]
-)
+@router.get("/video_feed", summary="Live Camera MJPEG Stream", tags=["Live Feed"])
 async def video_feed(camera_id: int = Query(default=0, ge=0, le=5)):
-    """Returns a continuous MJPEG video stream from the specified camera index (0=Laptop, 1=Webcam)."""
+    """Returns a continuous MJPEG video stream (0=Laptop, 1=Webcam)."""
     return StreamingResponse(
         generate_camera_stream(camera_id),
         media_type="multipart/x-mixed-replace; boundary=frame"
     )
 
 
-@router.get(
-    "/video_feed/{camera_id}",
-    summary="Live Camera MJPEG Stream by ID",
-    tags=["Live Feed"]
-)
+@router.get("/video_feed/{camera_id}", summary="Live Camera MJPEG Stream by ID", tags=["Live Feed"])
 async def video_feed_by_id(camera_id: int):
     """Returns a continuous MJPEG video stream from the specified camera ID."""
     return StreamingResponse(
@@ -571,11 +609,8 @@ async def video_feed_by_id(camera_id: int):
     )
 
 
-@router.get(
-    "/cameras/status",
-    summary="Get Camera Operational Status",
-    tags=["Live Feed"]
-)
+@router.get("/cameras/status", summary="Get Camera Operational Status", tags=["Live Feed"])
 async def get_cameras_status():
-    """Returns operational online/offline status of configured cameras."""
+    """Returns online/offline status of configured cameras."""
     return camera_stream_manager.get_status()
+
