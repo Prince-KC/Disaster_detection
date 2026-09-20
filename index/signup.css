@@ -2165,6 +2165,33 @@ footer {
     vertical-align: -1px;
 }
 
+.resource-mapping-option {
+    display: block;
+    width: 100%;
+    margin: 12px auto 0;
+    padding: 15px 18px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--crimson);
+    color: #fff;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 8px 18px rgba(184, 78, 57, 0.18);
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.resource-mapping-option:hover {
+    background: var(--crimson-deep);
+    box-shadow: 0 11px 22px rgba(184, 78, 57, 0.23);
+}
+
+.resource-mapping-option span {
+    margin-left: 6px;
+    font-size: 16px;
+    font-weight: 400;
+}
+
 @media (max-width: 640px) {
     .citizen-portal .form-page {
         padding: 28px 18px 54px;
@@ -2179,6 +2206,10 @@ footer {
     }
 
     .citizen-portal .submit-btn {
+        width: 100%;
+    }
+
+    .resource-mapping-option {
         width: 100%;
     }
 }

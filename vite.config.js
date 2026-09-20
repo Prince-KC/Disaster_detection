@@ -76,6 +76,8 @@ export default defineConfig({
         'login-page': resolve(__dirname, 'index/login-page.html'),
         'signup-role-selection': resolve(__dirname, 'index/signup-role-selection.html'),
         'response-dashboard': resolve(__dirname, 'index/response-dashboard.html'),
+        'resource-mapping': resolve(__dirname, 'index/resource-mapping.html'),
+        'available-resources': resolve(__dirname, 'index/available-resources.html'),
         'live-cameras': resolve(__dirname, 'index/live-cameras.html'),
         'incident-alerts': resolve(__dirname, 'index/incident-alerts.html'),
         'incident-detail': resolve(__dirname, 'index/incident-detail.html'),
