@@ -60,12 +60,91 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.header-bell').forEach((button) => button.addEventListener('click', () => {
         window.location.href = 'incident-alerts.html';
     }));
-    const primaryCameraScreen = document.querySelector('.camera-feed[data-status="active"] .camera-screen');
-    if (primaryCameraScreen) {
-        const stream = document.createElement('img');
-        stream.src = '/api/video_feed';
-        stream.alt = 'Live camera feed from CAM-KTM-041';
-        stream.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
-        primaryCameraScreen.prepend(stream);
+    const cameraFeeds = document.querySelectorAll('.camera-feed[data-camera-id]');
+    if (cameraFeeds.length > 0) {
+        cameraFeeds.forEach((feed) => {
+            const camId = feed.dataset.cameraId;
+            const screen = feed.querySelector('.camera-screen');
+            if (screen) {
+                let stream = screen.querySelector('.live-camera-stream');
+                if (!stream) {
+                    stream = document.createElement('img');
+                    stream.className = 'live-camera-stream';
+                    stream.alt = `Live camera feed CAM-0${parseInt(camId, 10) + 1}`;
+                    screen.prepend(stream);
+                }
+
+                let retryTimer = null;
+                const loadFeed = () => {
+                    if (retryTimer) clearTimeout(retryTimer);
+                    stream.src = `/api/video_feed?camera_id=${camId}&_t=${Date.now()}`;
+                };
+
+                stream.onerror = () => {
+                    // If backend is still starting or stream was interrupted, auto-reconnect
+                    if (retryTimer) clearTimeout(retryTimer);
+                    retryTimer = setTimeout(loadFeed, 1500);
+                };
+
+                stream.onload = () => {
+                    screen.classList.add('has-live-stream');
+                };
+
+                loadFeed();
+            }
+        });
+
+        const updateClock = () => {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            document.querySelectorAll('.live-dot').forEach((dot) => {
+                dot.textContent = `LIVE · ${timeStr}`;
+            });
+        };
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        const updateStatus = async () => {
+            try {
+                const res = await fetch('/api/cameras/status');
+                if (res.ok) {
+                    const data = await res.json();
+                    const statusText = document.getElementById('cameraCoverageStatus');
+                    if (statusText && data.total !== undefined) {
+                        const online = data.online_count || 0;
+                        const offline = data.total - online;
+                        statusText.innerHTML = `<i></i> ${online} online · ${offline} offline`;
+                    }
+                    if (data.cameras) {
+                        data.cameras.forEach((cam) => {
+                            const badge = document.querySelector(`.camera-feed[data-camera-id="${cam.id}"] .camera-status-tag`);
+                            if (badge) {
+                                badge.textContent = cam.online ? 'ACTIVE' : 'STANDBY';
+                                badge.className = `camera-alert camera-status-tag ${cam.online ? 'active' : 'standby'}`;
+                                if (cam.online) {
+                                    badge.style.color = '#387352';
+                                } else {
+                                    badge.style.color = '#9b6d24';
+                                }
+                            }
+                        });
+                    }
+                }
+            } catch (e) {
+                // Ignore transient network errors
+            }
+        };
+        updateStatus();
+        setInterval(updateStatus, 4000);
+    } else {
+        const primaryCameraScreen = document.querySelector('.camera-feed[data-status="active"] .camera-screen');
+        if (primaryCameraScreen) {
+            primaryCameraScreen.classList.add('has-live-stream');
+            const stream = document.createElement('img');
+            stream.className = 'live-camera-stream';
+            stream.src = '/api/video_feed?camera_id=0';
+            stream.alt = 'Live camera feed';
+            primaryCameraScreen.prepend(stream);
+        }
     }
 });
