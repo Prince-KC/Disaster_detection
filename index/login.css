@@ -831,7 +831,7 @@ footer {
     }
 }
 
-/* ResQ identity mark */
+/* विपद्Sathi identity mark */
 .brand-mark {
     width: 72px;
     height: 72px;
@@ -848,7 +848,7 @@ footer {
 }
 
 .brand-text b::after {
-    content: 'ResQ';
+    content: 'विपद्Sathi';
     font-family: 'Fraunces', serif;
     font-size: 29px;
     color: var(--crimson);

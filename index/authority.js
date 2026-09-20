@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    document.title = document.title.replace(/Rakshak/g, 'ResQ');
+    document.title = document.title.replace(/Rakshak/g, 'विपद्Sathi');
     const textWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const textNodes = [];
     while (textWalker.nextNode()) textNodes.push(textWalker.currentNode);
-    textNodes.forEach((node) => { node.nodeValue = node.nodeValue.replace(/Rakshak/g, 'ResQ'); });
-    document.querySelectorAll('.authority-brand b').forEach((brand) => { brand.textContent = 'ResQ'; brand.style.color = '#ad503d'; brand.style.fontSize = '29px'; });
+    textNodes.forEach((node) => { node.nodeValue = node.nodeValue.replace(/Rakshak/g, 'विपद्Sathi'); });
+    document.querySelectorAll('.authority-brand b').forEach((brand) => { brand.textContent = 'विपद्Sathi'; brand.style.color = '#ad503d'; brand.style.fontSize = '29px'; });
     document.querySelectorAll('.authority-brand .brand-mark').forEach((mark) => {
         mark.textContent = '';
         mark.style.width = '68px';
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!document.querySelector('.rakshak-site-footer')) {
         const footer = document.createElement('footer');
         footer.className = 'rakshak-site-footer';
-        footer.innerHTML = '<div class="rakshak-footer-inner"><div class="rakshak-footer-brand"><a href="landing-page.html" class="rakshak-footer-logo"><span>R</span><strong>ResQ</strong></a><p>A shared line between cameras, citizens, and the authorities who respond.</p><div class="rakshak-footer-status"><i></i> Response network operational</div></div><div class="rakshak-footer-column"><h2>Operations</h2><a href="response-dashboard.html">Overview</a><a href="incident-alerts.html">Incident alerts</a><a href="live-map.html">Live map</a></div><div class="rakshak-footer-column"><h2>Network</h2><a href="live-cameras.html">Live cameras</a><a href="incident-history.html">Incident history</a><a href="authority-profile.html">Authority profile</a></div><div class="rakshak-footer-column"><h2>Support</h2><a href="authority-settings.html">Settings</a><a href="landing-page.html#how">How it works</a><a href="login-page.html">Account access</a></div></div><div class="rakshak-footer-bottom"><span>© 2026 ResQ · Detect · Alert · Respond</span><span>Kathmandu, Nepal</span></div>';
+        footer.innerHTML = '<div class="rakshak-footer-inner"><div class="rakshak-footer-brand"><a href="landing-page.html" class="rakshak-footer-logo"><span>R</span><strong>विपद्Sathi</strong></a><p>A shared line between cameras, citizens, and the authorities who respond.</p><div class="rakshak-footer-status"><i></i> Response network operational</div></div><div class="rakshak-footer-column"><h2>Operations</h2><a href="response-dashboard.html">Overview</a><a href="incident-alerts.html">Incident alerts</a><a href="live-map.html">Live map</a></div><div class="rakshak-footer-column"><h2>Network</h2><a href="live-cameras.html">Live cameras</a><a href="incident-history.html">Incident history</a><a href="authority-profile.html">Authority profile</a></div><div class="rakshak-footer-column"><h2>Support</h2><a href="authority-settings.html">Settings</a><a href="landing-page.html#how">How it works</a><a href="login-page.html">Account access</a></div></div><div class="rakshak-footer-bottom"><span>© 2026 विपद्Sathi · Detect · Alert · Respond</span><span>Kathmandu, Nepal</span></div>';
         document.body.appendChild(footer);
     }
 
