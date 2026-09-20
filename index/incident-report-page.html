@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report an Incident — ResQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="signup.css">
+    <style>
+        .report-confirmation[hidden] { display: none; }
+        .report-confirmation { max-width: 780px; padding: 48px 42px 38px; text-align: center; }
+        .incident-portal .report-confirmation { text-align: center; }
+        .confirmation-icon { position: relative; width: 126px; height: 126px; margin: 0 auto 25px; color: #3e7a50; }
+        .incident-portal .report-confirmation .confirmation-icon { width: 126px; height: 126px; margin: 0 auto 25px; border: 0; background: transparent; color: #3e7a50; font-size: inherit; }
+        .confirmation-icon svg { display: block; width: 100%; height: 100%; overflow: visible; }
+        .confirmation-ring { fill: #e4f1e4; stroke: #3e7a50; stroke-width: 3; }
+        .confirmation-check { fill: none; stroke: #3e7a50; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+        .report-confirmation .eyebrow { color: #3e7a50; margin-bottom: 11px; }
+        .incident-portal .report-confirmation .eyebrow { color: #3e7a50; }
+        .report-confirmation h1 { max-width: none; margin: 0 auto; white-space: nowrap; font-size: clamp(30px, 3.4vw, 46px); }
+        .report-confirmation > p:not(.next-step) { max-width: 550px; margin: 13px auto 26px; color: var(--ink-soft); }
+        .confirmation-summary { max-width: 560px; margin: 0 auto; text-align: left; border: 1px solid var(--line); background: #fffdfa; }
+        .confirmation-summary h2 { padding: 15px 18px; border-bottom: 1px solid var(--line); font-family: 'Inter', sans-serif; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+        .summary-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 12px 18px; border-bottom: 1px solid var(--line); font-size: 13px; }
+        .summary-row:last-child { border-bottom: 0; }
+        .summary-row span { color: var(--ink-soft); }
+        .summary-row strong { text-align: right; }
+        .report-confirmation .next-step { margin: 21px auto 0; color: var(--ink-soft); font-size: 12px; }
+        .confirmation-actions { display: flex; align-items: stretch; justify-content: center; gap: 12px; max-width: 560px; margin: 28px auto 0; }
+        .confirmation-actions .confirmation-dashboard-link { flex: 0 1 255px; margin: 0; }
+        .confirmation-actions .confirmation-secondary-link { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 18px; border: 1px solid var(--line-strong); border-radius: 9px; color: var(--ink); font-size: 13px; font-weight: 600; white-space: nowrap; }
+        .confirmation-actions .confirmation-secondary-link:hover { border-color: var(--crimson); color: var(--crimson); background: #fffaf7; }
+        @media (max-width: 640px) { .report-confirmation { padding: 34px 18px 28px; } .confirmation-icon { width: 116px; height: 116px; } .report-confirmation h1 { white-space: normal; font-size: 32px; } .summary-row { align-items: flex-start; } .confirmation-actions { flex-direction: column; align-items: stretch; } .confirmation-actions .confirmation-dashboard-link { flex-basis: auto; } }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="nav">
+            <a href="home-landing-page.html" class="brand" aria-label="ResQ home">
+                <span class="brand-mark">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F5F1E7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 01-3.46 0" />
+                    </svg>
+                </span>
+                <span class="brand-text">
+                    <b>ResQ</b>
+                    <span>DETECT · ALERT · RESPOND</span>
+                </span>
+            </a>
+            <a href="landing-page.html" class="back-home">← Back to home</a>
+        </div>
+    </header>
+
+    <main class="form-page incident-portal">
+        <section class="form-card incident-card">
+            <div class="form-head">
+                <span class="eyebrow">Report an incident</span>
+                <h1>Tell us what happened.</h1>
+                <p>Share clear details and evidence so the right response team can act quickly.</p>
+            </div>
+
+            <form class="stack-form" onsubmit="showReportConfirmation(event)">
+                <div class="incident-section">
+                    <div class="incident-heading">
+                        <h2>Incident details</h2>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="incidentType">Incident type</label>
+                            <select id="incidentType" required>
+                                <option value="">Select incident type</option>
+                                <option>Road accident</option>
+                                <option>Flood</option>
+                                <option>Landslide</option>
+                                <option>Fire</option>
+                                <option>Blocked road</option>
+                                <option>Other emergency</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="incidentTime">When did it happen?</label>
+                            <input type="datetime-local" id="incidentTime" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="incident-section">
+                    <div class="incident-heading">
+                        <h2>Location and description</h2>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field full">
+                            <label for="location">Location or road stretch</label>
+                            <input type="text" id="location" placeholder="Where did it happen?" required>
+                        </div>
+
+                        <div class="field full">
+                            <label for="description">What happened?</label>
+                            <textarea id="description" rows="5" placeholder="Describe the incident, people affected, and any immediate danger..." required></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="incident-section">
+                    <div class="incident-heading">
+                        <h2>Evidence</h2>
+                    </div>
+                    <p class="incident-intro">Photos or videos help response teams understand the situation faster.</p>
+                    <div class="upload-box incident-upload">
+                        <input type="file" id="evidence" accept="image/*,video/*" multiple>
+                        <span class="upload-symbol" aria-hidden="true">+</span>
+                        <strong>Add photos or videos</strong>
+                        <small>Optional · JPG, PNG or MP4</small>
+                        <label for="evidence" class="upload-action">Choose files</label>
+                    </div>
+                </div>
+
+                <div class="incident-note"><span>✓</span> Your report will be routed to the nearest relevant authority for review.</div>
+                <button type="submit" class="submit-btn">Submit incident report <span>→</span></button>
+            </form>
+        </section>
+
+        <section class="form-card report-confirmation" id="reportConfirmation" aria-live="polite" hidden>
+            <div class="confirmation-icon" aria-label="Report received successfully">
+                <svg viewBox="0 0 142 142" role="img" aria-hidden="true">
+                    <circle class="confirmation-ring" cx="71" cy="71" r="66"></circle>
+                    <path class="confirmation-check" d="M39 73.5 61.5 96 105 49"></path>
+                </svg>
+            </div>
+            <span class="eyebrow">Report received</span>
+            <h1>Your report has been safely received.</h1>
+            <p>Thank you for reporting this incident. The relevant response authority has been notified.</p>
+            <div class="confirmation-summary">
+                <h2>Report summary</h2>
+                <div class="summary-row"><span>Report ID</span><strong>RK-2410</strong></div>
+                <div class="summary-row"><span>Incident type</span><strong id="confirmationIncidentType">Road accident</strong></div>
+                <div class="summary-row"><span>Location</span><strong id="confirmationLocation">Submitted location</strong></div>
+                <div class="summary-row"><span>Submitted</span><strong>Today, 10:42 AM</strong></div>
+                <div class="summary-row"><span>Current status</span><strong class="summary-status"><i></i>Submitted</strong></div>
+            </div>
+            <p class="next-step"><strong>Next:</strong> Your report will be reviewed by the relevant authority.</p>
+            <div class="status-timeline" aria-label="Report status timeline">
+                <span class="current">Submitted</span><i></i><span>Under review</span><i></i><span>Response dispatched</span><i></i><span>Resolved</span>
+            </div>
+            <div class="confirmation-actions">
+                <a href="my-reports-page.html" class="submit-btn confirmation-dashboard-link">View my reports <span>→</span></a>
+                <a href="incident-report-page.html" class="confirmation-secondary-link">Report another incident</a>
+            </div>
+        </section>
+    </main>
+    <script>
+        function showReportConfirmation(event) {
+            event.preventDefault();
+            const incidentType = document.getElementById('incidentType');
+            const location = document.getElementById('location');
+            document.getElementById('confirmationIncidentType').textContent = incidentType.options[incidentType.selectedIndex].text;
+            document.getElementById('confirmationLocation').textContent = location.value;
+            document.querySelector('.incident-card').hidden = true;
+            document.getElementById('reportConfirmation').hidden = false;
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Live Map - ResQ</title>
+    <link rel="stylesheet" href="authority.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+    <style>
+        #liveMap { background: #dfe5dd; }
+        .rakshak-map-marker { background: transparent; border: 0; }
+        .rakshak-map-marker span { display: block; width: 18px; height: 18px; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 2px 6px rgba(0, 0, 0, .35); }
+        .leaflet-container { font: 12px Inter, Arial, sans-serif; }
+        .leaflet-popup-content { line-height: 1.55; }
+        .leaflet-popup-content strong { font-size: 13px; }
+        .leaflet-popup-content span, .leaflet-popup-content small { color: var(--muted); }
+        .leaflet-popup-content a { display: inline-block; margin-top: 5px; color: var(--red); font-weight: 700; }
+        .map-panel { z-index: 500; }
+    </style>
+</head>
+<body class="authority-app">
+    <header class="authority-header">
+        <a href="response-dashboard.html" class="authority-brand"><span class="brand-mark">R</span><span><b>ResQ</b><small>AUTHORITY OPERATIONS</small></span></a>
+        <div class="authority-header-right"><span class="header-area">Bagmati Control Room</span><button class="header-bell">◦<i></i></button><a class="authority-user" href="authority-profile.html"><span>AS</span><strong>Alex Sharma</strong><small>Traffic Inspector</small></a><a class="header-logout" href="login-page.html">Log out</a></div>
+    </header>
+    <main class="authority-layout">
+        <aside class="authority-sidebar"><div class="sidebar-caption">Operations</div><nav><a href="response-dashboard.html">Overview</a><a href="live-cameras.html">Live Cameras</a><a href="incident-alerts.html">Incident Alerts <b>4</b></a><a class="active" href="live-map.html">Live Map</a><a href="incident-history.html">Incident History</a><div class="sidebar-rule"></div><a href="authority-profile.html">Profile</a><a href="authority-settings.html">Settings</a></nav><div class="sidebar-footer"><span class="online-dot"></span>Systems operational<small>Last sync 18:42:09</small></div></aside>
+        <section class="authority-content">
+            <div class="authority-page-heading"><div><span class="eyebrow">Bagmati Province · live operational view</span><h1>Live map</h1><p>Camera network and active incidents across the assigned area.</p></div><span class="coverage-status"><i></i> Updated 18:42:09</span></div>
+            <div class="map-layout">
+                <div id="liveMap" class="map-canvas" aria-label="Live operational map of Kathmandu Valley"></div>
+                <div class="map-panel"><span class="eyebrow">Operational area</span><h2>Situation map</h2><div class="map-filter"><label><input type="checkbox" data-map-filter="cameras" checked> Cameras</label><label><input type="checkbox" data-map-filter="incidents" checked> Active incidents</label><label><input type="checkbox" data-map-filter="citizen" checked> Citizen reports</label><label><input type="checkbox" data-map-filter="critical"> Critical only</label></div><p style="color:var(--muted);font-size:11px;margin:14px 0 0">Select a marker for camera or incident details.</p></div>
+            </div>
+        </section>
+    </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        const map = L.map('liveMap', { zoomControl: false }).setView([27.7172, 85.3240], 11);
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors', maxZoom: 19 }).addTo(map);
+        const layers = { cameras: L.layerGroup().addTo(map), incidents: L.layerGroup().addTo(map), citizen: L.layerGroup().addTo(map) };
+        const markerStyle = (color) => L.divIcon({ className: 'rakshak-map-marker', html: '<span style="background:' + color + '"></span>', iconSize: [20, 20], iconAnchor: [10, 10], popupAnchor: [0, -10] });
+        const points = [
+            { type: 'incidents', severity: 'critical', lat: 27.6952, lng: 85.2457, label: 'RK-2418 · Road accident', location: 'Tribhuvan Highway, Thankot checkpoint', source: 'Camera detected', href: 'incident-detail.html?id=RK-2418' },
+            { type: 'citizen', severity: 'high', lat: 27.7381, lng: 85.3235, label: 'RK-2417 · Flooded road', location: 'Tokha Road, Ward 5', source: 'Citizen report', href: 'incident-detail.html?id=RK-2417' },
+            { type: 'incidents', severity: 'medium', lat: 27.6848, lng: 85.2704, label: 'RK-2414 · Stopped vehicle', location: 'Ring Road, Kalanki interchange', source: 'Camera detected', href: 'incident-detail.html?id=RK-2414' },
+            { type: 'cameras', lat: 27.6873, lng: 85.3467, label: 'CAM-KTM-006', location: 'Koteshwor junction, Kathmandu', source: 'Camera online', href: 'live-cameras.html' },
+            { type: 'cameras', lat: 27.6742, lng: 85.3178, label: 'CAM-LAL-012', location: 'Jawalakhel road, Lalitpur', source: 'Camera online', href: 'live-cameras.html' },
+            { type: 'cameras', lat: 27.7139, lng: 85.2912, label: 'CAM-KTM-018', location: 'Kalanki interchange, Ring Road', source: 'Camera alert', href: 'live-cameras.html' }
+        ];
+        points.forEach((point) => {
+            const color = point.type === 'cameras' ? '#244b3d' : point.severity === 'critical' ? '#ad503d' : '#9b6d24';
+            const marker = L.marker([point.lat, point.lng], { icon: markerStyle(color) }).bindPopup('<strong>' + point.label + '</strong><br><span>' + point.source + '</span><br><small>' + point.location + '</small><br><a href="' + point.href + '">Open details &rarr;</a>');
+            marker.pointData = point;
+            marker.addTo(layers[point.type]);
+        });
+        function updateMap() {
+            const critical = document.querySelector('[data-map-filter="critical"]').checked;
+            document.querySelectorAll('[data-map-filter]').forEach((input) => {
+                const layer = layers[input.dataset.mapFilter];
+                if (!layer) return;
+                if (input.checked && !map.hasLayer(layer)) layer.addTo(map);
+                if (!input.checked && map.hasLayer(layer)) map.removeLayer(layer);
+            });
+            layers.incidents.eachLayer((marker) => {
+                if (critical && marker.pointData.severity !== 'critical') layers.incidents.removeLayer(marker);
+                if (!critical && !layers.incidents.hasLayer(marker)) marker.addTo(layers.incidents);
+            });
+        }
+        document.querySelectorAll('[data-map-filter]').forEach((input) => input.addEventListener('change', updateMap));
+        setTimeout(() => map.invalidateSize(), 150);
+    </script>
+    <script src="authority.js"></script>
+</body>
+</html>

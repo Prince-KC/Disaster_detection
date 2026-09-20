@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Incident Detail - ResQ</title>
+    <link rel="stylesheet" href="authority.css">
+    <style>
+        .response-suggestion { margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--line); }
+        .suggestion-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 15px; }
+        .suggestion-heading h3 { margin: 4px 0 3px; font-size: 16px; font-weight: 650; }
+        .suggestion-heading p { margin: 0; color: var(--muted); font-size: 11px; }
+        .confidence { padding: 5px 8px; border: 1px solid var(--line); background: #f3efe8; color: var(--muted); font-size: 10px; white-space: nowrap; }
+        .recommendation-list { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); }
+        .recommendation { min-height: 104px; padding: 14px; border-right: 1px solid var(--line); background: #fbfaf6; }
+        .recommendation:last-child { border-right: 0; }
+        .recommendation-label { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; }
+        .recommendation-icon { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--green-soft); color: var(--green); font-size: 10px; font-weight: 800; }
+        .recommendation:nth-child(2) .recommendation-icon { background: var(--red-soft); color: var(--red); }
+        .recommendation:nth-child(3) .recommendation-icon { background: var(--amber-soft); color: var(--amber); }
+        .recommendation strong { display: block; margin-top: 9px; font-size: 20px; font-weight: 650; }
+        .recommendation small { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
+        .suggestion-reason { margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+        .suggestion-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
+        .suggestion-actions button { padding: 8px 10px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); cursor: pointer; font-size: 11px; }
+        .suggestion-actions button:hover { border-color: var(--red); color: var(--red); }
+        @media (max-width: 680px) { .recommendation-list { grid-template-columns: 1fr; }.recommendation { border-right: 0; border-bottom: 1px solid var(--line); }.recommendation:last-child { border-bottom: 0; }.suggestion-heading { display: block; }.confidence { display: inline-block; margin-top: 10px; } }
+    </style>
+</head>
+<body class="authority-app">
+    <header class="authority-header">
+        <a href="response-dashboard.html" class="authority-brand"><span class="brand-mark">R</span><span><b>ResQ</b><small>AUTHORITY OPERATIONS</small></span></a>
+        <div class="authority-header-right"><span class="header-area">Bagmati Control Room</span><button class="header-bell" aria-label="Notifications">◦<i></i></button><a class="authority-user" href="authority-profile.html"><span>AS</span><strong>Alex Sharma</strong><small>Traffic Inspector</small></a><a class="header-logout" href="login-page.html">Log out</a></div>
+    </header>
+    <main class="authority-layout">
+        <aside class="authority-sidebar"><div class="sidebar-caption">Operations</div><nav><a href="response-dashboard.html">Overview</a><a href="live-cameras.html">Live Cameras</a><a class="active" href="incident-alerts.html">Incident Alerts <b>4</b></a><a href="live-map.html">Live Map</a><a href="incident-history.html">Incident History</a><div class="sidebar-rule"></div><a href="authority-profile.html">Profile</a><a href="authority-settings.html">Settings</a></nav><div class="sidebar-footer"><span class="online-dot"></span>Systems operational<small>Last sync 18:42:09</small></div></aside>
+        <section class="authority-content">
+            <a class="text-link" href="incident-alerts.html">← Back to incident alerts</a>
+            <div class="detail-top" style="margin-top:18px"><div><span class="eyebrow">Incident RK-2418 · Camera detected</span><h1>Road accident</h1><p>Tribhuvan Highway, Thankot checkpoint · 19 Sep 2026, 18:37 NPT</p></div><span class="detail-status">Critical · Unverified</span></div>
+            <div class="detail-layout">
+                <div>
+                    <section class="detail-block">
+                        <h2>Incident information</h2>
+                        <div class="detail-facts"><div><span>Source</span><strong>Camera Detected</strong></div><div><span>Camera ID</span><strong>CAM-KTM-041</strong></div><div><span>Exact location</span><strong>Km 12.4, Thankot checkpoint</strong></div><div><span>Severity</span><strong style="color:var(--red)">Critical</strong></div><div><span>Current status</span><strong>Unverified</strong></div><div><span>Reported</span><strong>19 Sep 2026 · 18:37</strong></div></div>
+                        <div class="response-suggestion" aria-labelledby="suggestionTitle"><div class="suggestion-heading"><div><span class="eyebrow">Camera-assisted assessment</span><h3 id="suggestionTitle">Suggested response</h3><p>Based on detected vehicle count, collision pattern, and lane obstruction.</p></div><span class="confidence">86% assessment confidence</span></div><div class="recommendation-list"><div class="recommendation"><div class="recommendation-label"><span class="recommendation-icon">A</span> Ambulance</div><strong>2 units</strong><small>Immediate medical support</small></div><div class="recommendation"><div class="recommendation-label"><span class="recommendation-icon">T</span> Traffic police</div><strong>2 units</strong><small>Lane control and diversion</small></div><div class="recommendation"><div class="recommendation-label"><span class="recommendation-icon">F</span> Fire brigade</div><strong>1 unit</strong><small>Rescue readiness</small></div></div><p class="suggestion-reason"><strong>Why:</strong> Two vehicles appear involved, with severe impact markers and eastbound traffic obstruction. Confirm occupants, fire risk, and road conditions before dispatching.</p><div class="suggestion-actions"><button data-action="Suggested resource review" type="button">Review recommendation</button><button data-action="Suggested dispatch" type="button">Use for dispatch draft</button></div></div>
+                    </section>
+                    <section class="detail-block"><h2>Evidence</h2><div class="evidence-box">Camera frame preview · 18:37:12 <span style="margin-left:8px;color:var(--red)">[ 2 vehicles detected ]</span></div><p style="color:var(--muted);font-size:12px;margin:12px 0 0">Automatic detection: collision pattern and stationary vehicles. Traffic is partially blocked in the eastbound lane.</p></section>
+                    <section class="detail-block"><h2>Response timeline</h2><div class="timeline"><div class="timeline-item current"><i></i><div><strong>Detected</strong><small>19 Sep 2026 · 18:37 · Camera AI flagged a likely collision.</small></div></div><div class="timeline-item"><i></i><div><strong>Verification pending</strong><small>Awaiting authority review and field confirmation.</small></div></div><div class="timeline-item"><i></i><div><strong>Response dispatched</strong><small>Will be recorded when a response unit is assigned.</small></div></div><div class="timeline-item"><i></i><div><strong>On scene</strong><small>Field team arrival will update this timeline.</small></div></div><div class="timeline-item"><i></i><div><strong>Resolved</strong><small>Incident closure and resolution details will appear here.</small></div></div></div></section>
+                </div>
+                <aside><section class="detail-block"><h2>Required action</h2><div class="detail-actions"><button data-action="Incident verification" class="action-button primary">Verify incident</button><button data-action="False alert review" class="action-button">Mark as false alert</button><button data-action="Response dispatch" class="action-button">Dispatch response</button><button data-action="Status update" class="action-button">Update status</button><button data-action="Incident resolution" class="action-button">Resolve incident</button></div></section><div class="detail-note">This incident is visible on the <a class="text-link" href="live-map.html">live map</a> and will remain in Incident History after resolution.</div></aside>
+            </div>
+        </section>
+    </main>
+    <script src="authority.js"></script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Log in — ResQ</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body class="login-portal">
+
+    <!-- NAVBAR -->
+    <header class="site-header">
+
+        <div class="nav">
+
+            <a href="home-landing-page.html" class="brand">
+
+                <span class="brand-mark">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F5F1E7" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+
+                        <path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 01-3.46 0" />
+
+                    </svg>
+                </span>
+
+                <span class="brand-text">
+                    <b>ResQ</b>
+                    <span>DETECT · ALERT · RESPOND</span>
+                </span>
+
+            </a>
+
+                <a href="home-landing-page.html" class="back-home">← Back to home</a>
+
+        </div>
+
+    </header>
+
+
+    <!-- LOGIN AREA -->
+
+    <main class="auth-page login-portal-main">
+        <section class="login-surface">
+            <div class="login-heading">
+                <span class="eyebrow">ResQ access</span>
+                <h1>Welcome back.</h1>
+                <p>Log in to continue to your ResQ account. We will recognize whether you are a citizen or an authority automatically.</p>
+            </div>
+
+            <form class="login-form" onsubmit="event.preventDefault(); window.location.href='response-dashboard.html';">
+                <div class="form-group">
+                    <label for="loginIdentifier">Phone number, official email, or Officer/Employee ID</label>
+                    <input type="text" id="loginIdentifier" placeholder="Enter your phone, official email, or ID" autocomplete="username" required>
+                    <small class="identifier-note">Use the details you registered with.</small>
+                </div>
+
+                <div class="form-group">
+                    <div class="label-row">
+                        <label for="password">Password</label>
+                        <a href="#" class="forgot">Forgot Password?</a>
+                    </div>
+                    <div class="password-box">
+                        <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required>
+                        <button type="button" class="show-password" onclick="togglePassword()" aria-label="Show password" title="Show password">
+                            <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+                                <circle cx="12" cy="12" r="2.5" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-btn">Log In <span>→</span></button>
+            </form>
+
+            <p class="signup-text">Don't have an account? <a href="signup-role-selection.html">Create an account</a></p>
+        </section>
+    </main>
+
+
+    <footer>
+        <p>
+            © 2026 ResQ · Detect · Alert · Respond
+        </p>
+    </footer>
+
+
+    <script>
+
+        function togglePassword() {
+
+            const password = document.getElementById("password");
+            const button = document.querySelector(".show-password");
+
+            if (password.type === "password") {
+
+                password.type = "text";
+                button.setAttribute("aria-label", "Hide password");
+                button.setAttribute("title", "Hide password");
+                button.classList.add("is-visible");
+
+            } else {
+
+                password.type = "password";
+                button.setAttribute("aria-label", "Show password");
+                button.setAttribute("title", "Show password");
+                button.classList.remove("is-visible");
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>
