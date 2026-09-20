@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "start": "concurrently --kill-others --names \"BACKEND,VITE\" --prefix-colors \"yellow,cyan\" \"C:/Users/hp/AppData/Local/Programs/Python/Python313/python.exe backend/main.py\" \"vite --host 0.0.0.0\"",
-    "start:backend": "C:/Users/hp/AppData/Local/Programs/Python/Python313/python.exe backend/main.py",
+    "start": "concurrently --kill-others --names \"BACKEND,VITE\" --prefix-colors \"yellow,cyan\" \"python backend/main.py\" \"vite --host 0.0.0.0\"",
+    "start:backend": "python backend/main.py",
     "start:frontend": "vite --host 0.0.0.0",
     "preview": "vite preview --host 0.0.0.0"
   },
