@@ -7,9 +7,9 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "start": "concurrently --kill-others --names \"FLASK,VITE\" --prefix-colors \"yellow,cyan\" \"cd human-monkey && ..\\.venv\\Scripts\\python app.py\" \"vite --host 0.0.0.0\"",
-    "start:flask": "cd human-monkey && ..\\.venv\\Scripts\\python app.py",
-    "start:vite": "vite --host 0.0.0.0",
+    "start": "concurrently --kill-others --names \"BACKEND,VITE\" --prefix-colors \"yellow,cyan\" \"C:/Users/hp/AppData/Local/Programs/Python/Python313/python.exe backend/main.py\" \"vite --host 0.0.0.0\"",
+    "start:backend": "C:/Users/hp/AppData/Local/Programs/Python/Python313/python.exe backend/main.py",
+    "start:frontend": "vite --host 0.0.0.0",
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {

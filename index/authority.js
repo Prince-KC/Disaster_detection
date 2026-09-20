@@ -60,4 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.header-bell').forEach((button) => button.addEventListener('click', () => {
         window.location.href = 'incident-alerts.html';
     }));
+    const primaryCameraScreen = document.querySelector('.camera-feed[data-status="active"] .camera-screen');
+    if (primaryCameraScreen) {
+        const stream = document.createElement('img');
+        stream.src = '/api/video_feed';
+        stream.alt = 'Live camera feed from CAM-KTM-041';
+        stream.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+        primaryCameraScreen.prepend(stream);
+    }
 });

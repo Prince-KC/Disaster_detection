@@ -4,7 +4,7 @@ const path = require('node:path');
 const { exec } = require('node:child_process');
 
 const preferredPort = Number(process.env.PORT) || 3000;
-const siteRoot = path.join(__dirname, 'Innovision');
+const siteRoot = path.join(__dirname, 'index');
 
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -20,7 +20,7 @@ const contentTypes = {
 
 const requestHandler = (request, response) => {
   const requestPath = decodeURIComponent(request.url.split('?')[0]);
-  const relativePath = requestPath === '/' ? 'landingpage.html' : requestPath.slice(1);
+  const relativePath = requestPath === '/' ? 'landing-page.html' : requestPath.slice(1);
   const filePath = path.resolve(siteRoot, relativePath);
 
   if (!filePath.startsWith(siteRoot + path.sep)) {
@@ -58,7 +58,7 @@ function startServer(port) {
 
   server.listen(port, () => {
     const url = `http://localhost:${port}`;
-    console.log(`Innovision is running at ${url}`);
+    console.log(`Disaster frontend is running at ${url}`);
 
     if (process.platform === 'win32') {
       exec(`start "" "${url}"`);
