@@ -116,6 +116,49 @@ DISASTER_DISPLAY: Dict[str, tuple] = {
 }
 
 
+# ==============================================================================
+# Authority → Chat ID mapping with disaster routing rules
+# Ambulance  : 6750834913  → ALL disasters
+# Rescue Force: 7175802906 → ALL disasters
+# Road Authority: 5737435362 → flood, landslide
+# Fire Brigade: 8846137970  → forest_fire
+# ==============================================================================
+AUTHORITY_ROUTING: List[Dict[str, Any]] = [
+    {
+        "name": "🚑 Ambulance",
+        "chat_id": "6750834913",
+        "triggers": "all",   # receives every detected disaster
+    },
+    {
+        "name": "⛑️ Rescue Force",
+        "chat_id": "7175802906",
+        "triggers": "all",
+    },
+    {
+        "name": "🛣️ Road Authority",
+        "chat_id": "5737435362",
+        "triggers": ["flood", "landslide"],
+    },
+    {
+        "name": "🔥 Fire Brigade",
+        "chat_id": "8846137970",
+        "triggers": ["forest_fire"],
+    },
+]
+
+
+def _get_target_authorities(incident_key: str) -> List[Dict[str, Any]]:
+    """
+    Returns the list of AUTHORITY_ROUTING entries that should be notified
+    for a given incident type key (normalised lowercase + underscores).
+    """
+    matched = []
+    for auth in AUTHORITY_ROUTING:
+        if auth["triggers"] == "all" or incident_key in auth["triggers"]:
+            matched.append(auth)
+    return matched
+
+
 # Ambulance tier mapping for accident classes (per detected box)
 ACCIDENT_TIERS: Dict[str, tuple] = {
     "bike_accident": (1, 2, "bike"),
@@ -235,10 +278,9 @@ def _send_telegram_alert(cam_id: int, class_name: str, confidence: float,
         daemon=True
     ).start()
 
-    chat_ids = [c.strip() for c in TELEGRAM_CHAT_ID.split(",") if c.strip()]
-    if not TELEGRAM_BOT_TOKEN or not chat_ids:
+    if not TELEGRAM_BOT_TOKEN:
         logger.info(
-            f"[Telegram] No token/chat_id — simulated alert cam {cam_id}: "
+            f"[Telegram] No token — simulated alert cam {cam_id}: "
             f"{class_name} {confidence:.1%}"
         )
         return
@@ -247,41 +289,50 @@ def _send_telegram_alert(cam_id: int, class_name: str, confidence: float,
         clean_key, ("🚨", class_name.replace("_", " ").upper())
     )
 
-    caption = (
-        f"{emoji} <b>विपद्Sathi DISASTER ALERT!</b>\n\n"
-        f"📷 <b>Camera:</b> CAM-0{cam_id}\n"
-        f"⚠️ <b>Event:</b> {label}\n"
-        f"🎯 <b>Confidence:</b> {round(confidence * 100, 1)}%\n"
-        f"⏰ <b>Time:</b> {datetime.datetime.now().strftime('%I:%M %p')}\n"
-        f"📍 <b>Location:</b> Bagmati Monitoring Zone"
-    )
-
-    # For road_accident events, append vehicle and ambulance lines directly after Location
-    if is_accident and vehicle_info is not None:
-        caption += (
-            f"\n🚗 <b>Vehicles Involved:</b> {vehicle_info['vehicles_line']}\n"
-            f"🚑 <b>Ambulances Needed:</b> {vehicle_info['ambulances_line']}"
-        )
+    # Determine which authorities should receive this alert
+    target_authorities = _get_target_authorities(clean_key)
+    if not target_authorities:
+        logger.warning(f"[Telegram] No authorities configured for incident type '{clean_key}'. Skipping.")
+        return
 
     try:
         import requests as _req
-        for target_chat_id in chat_ids:
+        for auth in target_authorities:
+            target_chat_id = auth["chat_id"]
+            auth_name      = auth["name"]
             try:
+                # Build per-authority caption with role header
+                auth_caption = (
+                    f"{emoji} <b>विपद्Sathi DISASTER ALERT!</b>\n"
+                    f"👤 <b>Notified:</b> {auth_name}\n\n"
+                    f"📷 <b>Camera:</b> CAM-0{cam_id}\n"
+                    f"⚠️ <b>Event:</b> {label}\n"
+                    f"🎯 <b>Confidence:</b> {round(confidence * 100, 1)}%\n"
+                    f"⏰ <b>Time:</b> {datetime.datetime.now().strftime('%I:%M %p')}\n"
+                    f"📍 <b>Location:</b> Bagmati Monitoring Zone"
+                )
+                # Append vehicle/ambulance info for accident events
+                if is_accident and vehicle_info is not None:
+                    auth_caption += (
+                        f"\n🚗 <b>Vehicles Involved:</b> {vehicle_info['vehicles_line']}\n"
+                        f"🚑 <b>Ambulances Needed:</b> {vehicle_info['ambulances_line']}"
+                    )
+
                 if image_bytes:
                     url  = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
                     files = {"photo": (f"{clean_key}.jpg", image_bytes, "image/jpeg")}
-                    data  = {"chat_id": target_chat_id, "caption": caption, "parse_mode": "HTML"}
+                    data  = {"chat_id": target_chat_id, "caption": auth_caption, "parse_mode": "HTML"}
                     resp  = _req.post(url, data=data, files=files, timeout=10)
                 else:
                     url  = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-                    data = {"chat_id": target_chat_id, "text": caption, "parse_mode": "HTML"}
+                    data = {"chat_id": target_chat_id, "text": auth_caption, "parse_mode": "HTML"}
                     resp = _req.post(url, json=data, timeout=10)
                 if resp.status_code == 200:
-                    logger.info(f"[Telegram] Alert sent to {target_chat_id} — cam {cam_id}: {label}")
+                    logger.info(f"[Telegram] Alert sent to {auth_name} ({target_chat_id}) — cam {cam_id}: {label}")
                 else:
-                    logger.warning(f"[Telegram] API {resp.status_code} for {target_chat_id}: {resp.text[:200]}")
+                    logger.warning(f"[Telegram] API {resp.status_code} for {auth_name} ({target_chat_id}): {resp.text[:200]}")
             except Exception as e:
-                logger.error(f"[Telegram] Error sending to {target_chat_id}: {e}")
+                logger.error(f"[Telegram] Error sending to {auth_name} ({target_chat_id}): {e}")
     except Exception as exc:
         logger.error(f"[Telegram] Send error: {exc}")
 
@@ -901,17 +952,32 @@ def _send_citizen_report_telegram(
     saved_files: List[str],
     report_dir: str
 ) -> None:
-    """Dispatches a formatted Telegram alert to authorities when a citizen submits an incident."""
+    """Dispatches a formatted Telegram alert to the relevant authorities when a citizen submits an incident."""
     bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip() or TELEGRAM_BOT_TOKEN
-    chat_id_raw = os.getenv("TELEGRAM_CHAT_ID", "").strip() or TELEGRAM_CHAT_ID
-    chat_ids = [c.strip() for c in chat_id_raw.split(",") if c.strip()]
-
-    if not bot_token or not chat_ids:
-        logger.warning(f"[Report {report_id}] Telegram not sent: token or chat_id not configured.")
+    if not bot_token:
+        logger.warning(f"[Report {report_id}] Telegram not sent: bot token not configured.")
         return
 
-    # Choose incident emoji
+    # Normalise incident type to match routing keys
     t_clean = incident_type.lower().replace("-", "_").replace(" ", "_")
+
+    # Map citizen-reported type keywords to canonical routing keys
+    routing_key = t_clean
+    if any(k in t_clean for k in ["accident", "crash", "car", "bike", "bus", "vehicle"]):
+        routing_key = "car_accident"   # accident bucket → Ambulance + Rescue Force
+    elif any(k in t_clean for k in ["flood", "water", "river"]):
+        routing_key = "flood"
+    elif any(k in t_clean for k in ["slide", "landslide"]):
+        routing_key = "landslide"
+    elif any(k in t_clean for k in ["fire", "smoke", "burn"]):
+        routing_key = "forest_fire"
+
+    target_authorities = _get_target_authorities(routing_key)
+    if not target_authorities:
+        logger.warning(f"[Report {report_id}] No authorities matched for type '{routing_key}'. Sending to all.")
+        target_authorities = AUTHORITY_ROUTING  # fallback: notify all
+
+    # Choose incident emoji
     emoji = "🚨"
     if any(k in t_clean for k in ["accident", "crash", "car", "bike", "bus", "vehicle"]):
         emoji = "🚗"
@@ -932,17 +998,6 @@ def _send_citizen_report_telegram(
     files_text = f"{len(saved_files)} file(s)"
     if saved_files:
         files_text += f" ({', '.join(saved_files)})"
-
-    caption = (
-        f"📢 <b>विपद्Sathi CITIZEN INCIDENT REPORT</b>\n\n"
-        f"🆔 <b>Report ID:</b> <code>{report_id}</code>\n"
-        f"⚠️ <b>Incident Type:</b> {emoji} <b>{incident_type}</b>\n"
-        f"📍 <b>Location:</b> {location}\n"
-        f"⏰ <b>Incident Time:</b> {incident_time}\n"
-        f"🕒 <b>Submitted:</b> {datetime.datetime.now().strftime('%Y-%m-%d %I:%M %p')}\n"
-        f"📝 <b>Description:</b>\n{clean_desc}\n\n"
-        f"📎 <b>Evidence:</b> {files_text}"
-    )
 
     # Check for image file in saved_files
     primary_image_path = None
@@ -965,8 +1020,22 @@ def _send_citizen_report_telegram(
 
     try:
         import requests as _req
-        for target_chat_id in chat_ids:
+        for auth in target_authorities:
+            target_chat_id = auth["chat_id"]
+            auth_name      = auth["name"]
             try:
+                # Per-authority caption with role header
+                caption = (
+                    f"📢 <b>विपद्Sathi CITIZEN INCIDENT REPORT</b>\n"
+                    f"👤 <b>Notified:</b> {auth_name}\n\n"
+                    f"🆔 <b>Report ID:</b> <code>{report_id}</code>\n"
+                    f"⚠️ <b>Incident Type:</b> {emoji} <b>{incident_type}</b>\n"
+                    f"📍 <b>Location:</b> {location}\n"
+                    f"⏰ <b>Incident Time:</b> {incident_time}\n"
+                    f"🕒 <b>Submitted:</b> {datetime.datetime.now().strftime('%Y-%m-%d %I:%M %p')}\n"
+                    f"📝 <b>Description:</b>\n{clean_desc}\n\n"
+                    f"📎 <b>Evidence:</b> {files_text}"
+                )
                 if img_bytes:
                     url = f"https://api.telegram.org/bot{bot_token}/sendPhoto"
                     files = {"photo": (os.path.basename(primary_image_path), img_bytes, "image/jpeg")}
@@ -978,11 +1047,11 @@ def _send_citizen_report_telegram(
                     resp = _req.post(url, json=data, timeout=10)
 
                 if resp.status_code == 200:
-                    logger.info(f"[Report {report_id}] Telegram alert delivered to {target_chat_id}")
+                    logger.info(f"[Report {report_id}] Telegram alert delivered to {auth_name} ({target_chat_id})")
                 else:
-                    logger.warning(f"[Report {report_id}] Telegram API {resp.status_code} for {target_chat_id}: {resp.text[:200]}")
+                    logger.warning(f"[Report {report_id}] Telegram API {resp.status_code} for {auth_name} ({target_chat_id}): {resp.text[:200]}")
             except Exception as e:
-                logger.error(f"[Report {report_id}] Error sending Telegram alert to {target_chat_id}: {e}")
+                logger.error(f"[Report {report_id}] Error sending Telegram alert to {auth_name} ({target_chat_id}): {e}")
     except Exception as exc:
         logger.error(f"[Report {report_id}] Unexpected error in Telegram alert dispatch: {exc}")
 
