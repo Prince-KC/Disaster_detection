@@ -60,7 +60,7 @@
                 <p>Log in to continue to your विपद्Sathi account. We will recognize whether you are a citizen or an authority automatically.</p>
             </div>
 
-            <form class="login-form" onsubmit="event.preventDefault(); window.location.href='response-dashboard.html';">
+            <form class="login-form" id="loginForm">
                 <div class="form-group">
                     <label for="loginIdentifier">Phone number, official email, or Officer/Employee ID</label>
                     <input type="text" id="loginIdentifier" placeholder="Enter your phone, official email, or ID" autocomplete="username" required>
@@ -125,6 +125,7 @@
 
     </script>
 
+    <script src="auth-storage.js"></script>
 </body>
 
 </html>

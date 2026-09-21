@@ -147,4 +147,10 @@ document.addEventListener('DOMContentLoaded', () => {
             primaryCameraScreen.prepend(stream);
         }
     }
+
+    document.querySelectorAll('.header-logout, .logout-link, a[href="login-page.html"]').forEach((link) => {
+        if (link.textContent.toLowerCase().includes('log out') || link.classList.contains('header-logout')) {
+            link.href = 'login-page.html?logout=true';
+        }
+    });
 });

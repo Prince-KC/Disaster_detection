@@ -26,6 +26,13 @@ router = APIRouter()
 # Disaster Detection Model — loaded ONCE at module startup
 # ============================================================================
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+# Suppress noisy OpenCV VideoCapture 'camera index out of range' error spam
+os.environ["OPENCV_LOG_LEVEL"] = "SILENT"
+try:
+    cv2.setLogLevel(0)  # 0 = SILENT
+except Exception:
+    pass
+
 
 _disaster_model = None
 _disaster_class_names: Dict[int, str] = {}
@@ -616,7 +623,7 @@ class CameraStreamManager:
                     self._online_status[camera_id] = False
                     with self._jpeg_locks[camera_id]:
                         self._latest_jpeg[camera_id] = self._create_standby_frame(camera_id)
-                    time.sleep(1.0)
+                    time.sleep(5.0)  # wait 5s before retrying — avoids OpenCV error spam
                     continue
 
             # ---- read ----
