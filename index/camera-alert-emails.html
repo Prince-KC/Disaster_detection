@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Camera Alert Emails — विपद्Sathi Authority</title>
+  <link rel="stylesheet" href="authority.css">
+  <style>
+    .email-grid {
+      display: grid;
+      gap: 24px;
+      max-width: 860px;
+    }
+    .email-sender-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fbf9f5;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 16px 20px;
+    }
+    .sender-info strong {
+      display: block;
+      font-size: 14px;
+      color: var(--ink);
+    }
+    .sender-info span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-status.active {
+      background: #e6f4ea;
+      color: #137333;
+    }
+    .badge-status.pending {
+      background: #fef7e0;
+      color: #b06000;
+    }
+    .badge-status i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .add-email-form {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .add-email-form input[type="email"] {
+      flex: 1;
+      height: 42px;
+      padding: 0 14px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: var(--surface);
+      font-size: 13px;
+      outline: none;
+    }
+    .add-email-form input[type="email"]:focus {
+      border-color: var(--green);
+    }
+    .btn-add {
+      height: 42px;
+      padding: 0 20px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-add:hover {
+      background: #1a382d;
+    }
+    .btn-test {
+      height: 42px;
+      padding: 0 18px;
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .btn-test:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+    .recipients-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    .recipients-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: #f3efe8;
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .recipients-table td {
+      padding: 12px 14px;
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .recipient-email {
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .btn-delete {
+      padding: 5px 10px;
+      background: transparent;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-delete:hover {
+      border-color: var(--red);
+      color: var(--red);
+      background: #fff5f5;
+    }
+    .btn-send-single {
+      padding: 5px 10px;
+      background: transparent;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      color: var(--green);
+      font-size: 11px;
+      cursor: pointer;
+      margin-right: 6px;
+      transition: all 0.15s;
+    }
+    .btn-send-single:hover {
+      background: var(--green-soft);
+      border-color: var(--green);
+    }
+    .info-card {
+      background: #faf7f2;
+      border: 1px dashed var(--line-strong);
+      border-radius: 6px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: #555;
+      line-height: 1.6;
+    }
+    .info-card strong {
+      color: var(--ink);
+    }
+    .info-card code {
+      background: #ede8df;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body class="authority-app">
+  <header class="authority-header">
+    <a href="response-dashboard.html" class="authority-brand">
+      <span class="brand-mark">R</span>
+      <span><b>विपद्Sathi</b><small>AUTHORITY OPERATIONS</small></span>
+    </a>
+    <div class="authority-header-right">
+      <span class="header-area">Bagmati Control Room</span>
+      <button class="header-bell" aria-label="Notifications">◦<i></i></button>
+      <a class="authority-user" href="authority-profile.html">
+        <span>AS</span>
+        <strong>Alex Sharma</strong>
+        <small>Traffic Inspector</small>
+      </a>
+      <a class="header-logout" href="login-page.html">Log out</a>
+    </div>
+  </header>
+
+  <main class="authority-layout">
+    <aside class="authority-sidebar">
+      <div class="sidebar-caption">Operations</div>
+      <nav aria-label="Authority navigation">
+        <a href="response-dashboard.html">Overview</a>
+        <a href="live-cameras.html">Live Cameras</a>
+        <a href="incident-alerts.html">Incident Alerts <b>4</b></a>
+        <a href="live-map.html">Live Map</a>
+        <a href="incident-history.html">Incident History</a>
+        <div class="sidebar-rule"></div>
+        <a class="active" href="camera-alert-emails.html">Alert Emails</a>
+        <a href="authority-profile.html">Profile</a>
+        <a href="authority-settings.html">Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span class="online-dot"></span>Systems operational
+        <small>Last sync 18:42:09</small>
+      </div>
+    </aside>
+
+    <section class="authority-content">
+      <div class="authority-page-heading">
+        <div>
+          <span class="eyebrow">Emergency Dispatch Configuration</span>
+          <h1>Camera Alert Emails</h1>
+          <p>Add authority Gmail addresses to receive instant photo alerts whenever a disaster or accident is detected by live monitoring cameras.</p>
+        </div>
+      </div>
+
+      <div class="email-grid">
+        <!-- Sender Account Status -->
+        <section class="authority-panel" style="padding: 20px 24px;">
+          <div class="email-sender-banner">
+            <div class="sender-info">
+              <span>Dispatched From (Sender Account):</span>
+              <strong id="senderEmail">bipadsathi1@gmail.com</strong>
+              <small style="color:var(--muted); font-size:11px;">Host: smtp.gmail.com &bull; Port: 587 (TLS)</small>
+            </div>
+            <div id="smtpBadge" class="badge-status pending">
+              <i></i> <span id="smtpBadgeText">Checking Status...</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Add Recipient Form -->
+        <section class="authority-panel" style="padding: 24px;">
+          <span class="eyebrow">Add Recipient</span>
+          <h2>Register Authority Gmail</h2>
+          <p style="color:var(--muted); font-size:12px; margin:4px 0 14px;">Whenever CAM-01 or CAM-02 detects a flood, accident, landslide, or fire, alert emails with photo evidence will be dispatched to all registered addresses.</p>
+
+          <form id="addRecipientForm" class="add-email-form">
+            <input type="email" id="newRecipientInput" placeholder="Enter officer or division Gmail (e.g. traffic.division@gmail.com)" required>
+            <button type="submit" class="btn-add">＋ Add Email</button>
+            <button type="button" id="btnTestAll" class="btn-test">🧪 Send Test Alert</button>
+          </form>
+        </section>
+
+        <!-- Registered Recipients Table -->
+        <section class="authority-panel" style="padding: 24px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+            <div>
+              <span class="eyebrow">Authorized Distribution List</span>
+              <h2>Active Alert Recipients (<span id="recipientCount">0</span>)</h2>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="recipients-table">
+              <thead>
+                <tr>
+                  <th>Recipient Email</th>
+                  <th>Status</th>
+                  <th>Camera Routing</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="recipientsTableBody">
+                <tr>
+                  <td colspan="4" style="text-align:center; color:var(--muted); padding:20px;">Loading recipients...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Help Guide Card -->
+        <div class="info-card">
+          <strong>💡 How Live Camera Detection Email Alerts Work:</strong><br>
+          1. The AI model continuously analyzes live video streams from <strong>CAM-01</strong> and <strong>CAM-02</strong>.<br>
+          2. When an event (accident, flood, fire, etc.) is confirmed, a photo snapshot is captured.<br>
+          3. An emergency email containing the incident badge, confidence score, vehicle/ambulance estimations, and the camera snapshot image is automatically dispatched from <code>bipadsathi1@gmail.com</code> to all registered Gmail addresses in this list.<br>
+          4. <em>Note:</em> Ensure <code>GMAIL_APP_PASSWORD</code> is configured in <code>.env</code> so Gmail SMTP can authenticate securely.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var recipientsList = [];
+      var tableBody = document.getElementById('recipientsTableBody');
+      var countEl = document.getElementById('recipientCount');
+      var form = document.getElementById('addRecipientForm');
+      var input = document.getElementById('newRecipientInput');
+      var btnTestAll = document.getElementById('btnTestAll');
+      var senderEl = document.getElementById('senderEmail');
+      var badge = document.getElementById('smtpBadge');
+      var badgeText = document.getElementById('smtpBadgeText');
+
+      function showToast(msg, isError) {
+        var existing = document.querySelector('.toast');
+        if (existing) existing.remove();
+        var toast = document.createElement('div');
+        toast.className = 'toast';
+        if (isError) toast.style.background = 'var(--red)';
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(function () { toast.remove(); }, 3500);
+      }
+
+      async function loadRecipients() {
+        try {
+          var res = await fetch('/api/alerts/recipients');
+          var data = await res.json();
+          if (data.sender) senderEl.textContent = data.sender;
+          
+          if (data.configured) {
+            badge.className = 'badge-status active';
+            badgeText.textContent = 'Operational (Ready to Send)';
+          } else {
+            badge.className = 'badge-status pending';
+            badgeText.textContent = 'App Password Required';
+          }
+
+          recipientsList = data.recipients || [];
+          renderTable();
+        } catch (err) {
+          console.error('Failed to load recipients:', err);
+          tableBody.innerHTML = '<tr><td colspan="4" style="color:var(--red); text-align:center; padding:16px;">Failed to load alert recipients. Please ensure backend is running.</td></tr>';
+        }
+      }
+
+      function renderTable() {
+        countEl.textContent = recipientsList.length;
+        if (recipientsList.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="4" style="color:var(--muted); text-align:center; padding:20px;">No authority emails registered yet. Add one above.</td></tr>';
+          return;
+        }
+
+        tableBody.innerHTML = '';
+        recipientsList.forEach(function (email) {
+          var tr = document.createElement('tr');
+
+          var tdEmail = document.createElement('td');
+          tdEmail.className = 'recipient-email';
+          tdEmail.textContent = email;
+
+          var tdStatus = document.createElement('td');
+          tdStatus.innerHTML = '<span style="color:var(--green); font-weight:700; font-size:11px;">● Active</span>';
+
+          var tdRouting = document.createElement('td');
+          tdRouting.innerHTML = '<span style="color:var(--muted); font-size:11px;">CAM-01, CAM-02 + Citizen</span>';
+
+          var tdActions = document.createElement('td');
+          tdActions.style.textAlign = 'right';
+
+          var btnTest = document.createElement('button');
+          btnTest.className = 'btn-send-single';
+          btnTest.type = 'button';
+          btnTest.textContent = 'Send Test';
+          btnTest.addEventListener('click', function () {
+            sendTestAlert(email);
+          });
+
+          var btnDel = document.createElement('button');
+          btnDel.className = 'btn-delete';
+          btnDel.type = 'button';
+          btnDel.textContent = 'Remove';
+          btnDel.addEventListener('click', function () {
+            removeRecipient(email);
+          });
+
+          tdActions.appendChild(btnTest);
+          tdActions.appendChild(btnDel);
+
+          tr.appendChild(tdEmail);
+          tr.appendChild(tdStatus);
+          tr.appendChild(tdRouting);
+          tr.appendChild(tdActions);
+
+          tableBody.appendChild(tr);
+        });
+      }
+
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var email = input.value.trim();
+        if (!email) return;
+
+        try {
+          var res = await fetch('/api/alerts/recipients', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+          });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.detail || 'Failed to add recipient');
+
+          recipientsList = data.recipients || [];
+          renderTable();
+          input.value = '';
+          showToast('Added ' + email + ' to camera alert recipients.');
+        } catch (err) {
+          showToast(err.message, true);
+        }
+      });
+
+      async function removeRecipient(email) {
+        if (!confirm('Remove ' + email + ' from receiving camera detection alerts?')) return;
+        try {
+          var res = await fetch('/api/alerts/recipients?email=' + encodeURIComponent(email), {
+            method: 'DELETE'
+          });
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.detail || 'Failed to remove recipient');
+
+          recipientsList = data.recipients || [];
+          renderTable();
+          showToast('Removed ' + email + ' from alerts.');
+        } catch (err) {
+          showToast(err.message, true);
+        }
+      }
+
+      async function sendTestAlert(targetEmail) {
+        showToast('Dispatching test alert email...');
+        try {
+          var payload = targetEmail ? { email: targetEmail } : {};
+          var res = await fetch('/api/alerts/recipients/test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          var data = await res.json();
+          if (!res.ok || !data.success) {
+            throw new Error(data.error || 'SMTP delivery failed. Check GMAIL_APP_PASSWORD.');
+          }
+          showToast('Test camera alert delivered successfully to ' + (data.recipients ? data.recipients.join(', ') : 'recipients') + '!');
+        } catch (err) {
+          showToast(err.message, true);
+        }
+      }
+
+      btnTestAll.addEventListener('click', function () {
+        sendTestAlert(null);
+      });
+
+      loadRecipients();
+    })();
+  </script>
+</body>
+</html>

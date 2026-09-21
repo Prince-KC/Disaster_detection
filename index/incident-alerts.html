@@ -6,23 +6,36 @@
     <title>Incident Alerts - विपद्Sathi</title>
     <link rel="stylesheet" href="authority.css">
     <style>
+        /* ── page layout ────────────────────────────────────────────── */
         .alerts-content { max-width: 1160px; }
         .alerts-heading { margin-bottom: 34px; }
         .alerts-heading h1 { margin-bottom: 7px; }
         .alerts-heading p { max-width: 590px; }
         .attention-note { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; color: var(--muted); font-size: 12px; }
         .attention-note i { width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+
+        /* ── controls bar ───────────────────────────────────────────── */
         .alert-controls { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
         .alert-controls .search-field { flex: 1; max-width: 440px; }
         .alert-controls .search-field input { height: 44px; border-radius: 3px; font-size: 13px; }
         .alert-filter { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 12px; white-space: nowrap; }
         .alert-filter select { height: 40px; min-width: 170px; padding: 0 31px 0 11px; border: 1px solid var(--line-strong); border-radius: 3px; background: var(--surface); color: var(--ink); cursor: pointer; }
+
+        /* ── live indicator ─────────────────────────────────────────── */
+        .live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; background: rgba(173,80,61,.10); color: #ad503d; font-size: 11px; font-weight: 700; letter-spacing: .04em; white-space: nowrap; }
+        .live-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: #ad503d; animation: livePulse 1.4s ease-in-out infinite; }
+        @keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.7)} }
+
+        /* ── list ───────────────────────────────────────────────────── */
         .alerts-list { border: 1px solid var(--line); background: var(--surface); }
         .alerts-list-head { display: grid; grid-template-columns: minmax(310px, 1.7fr) 150px 105px 150px 20px; gap: 18px; padding: 13px 22px; background: #f3efe8; color: var(--muted); font-size: 11px; }
         .alert-entry { position: relative; display: grid; grid-template-columns: minmax(310px, 1.7fr) 150px 105px 150px 20px; align-items: center; gap: 18px; min-height: 124px; padding: 18px 22px; border-top: 1px solid var(--line); transition: background .15s ease; }
         .alert-entry:hover { background: #fbf8f2; }
         .alert-entry.urgent { border-left: 3px solid var(--red); padding-left: 19px; background: #fffaf7; }
         .alert-entry[hidden] { display: none; }
+        .alert-entry.live-row { animation: slideIn .35s ease; }
+        @keyframes slideIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+
         .entry-source { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; color: var(--muted); font-size: 11px; }
         .source-icon { display: inline-grid; place-items: center; width: 17px; height: 17px; border: 1px solid var(--line-strong); border-radius: 50%; color: var(--green); font-size: 9px; font-weight: 700; }
         .source-icon.camera { color: var(--red); }
@@ -38,11 +51,12 @@
         .entry-severity.critical .severity-dot { background: var(--red); }
         .entry-status { justify-self: start; padding: 5px 8px; border-radius: 3px; background: var(--surface-muted); color: var(--muted); font-size: 11px; white-space: nowrap; }
         .entry-status.unverified { background: var(--red-soft); color: #914936; }
-        .entry-status.review { background: var(--amber-soft); color: #85621f; }
+        .entry-status.review     { background: var(--amber-soft); color: #85621f; }
         .entry-status.dispatched { background: var(--green-soft); color: var(--green); }
-        .entry-status.resolved { background: #edf0ec; color: #617166; }
+        .entry-status.resolved   { background: #edf0ec; color: #617166; }
         .entry-arrow { color: var(--red); font-size: 17px; }
         .alerts-empty { display: none; padding: 40px 22px; color: var(--muted); text-align: center; }
+
         @media (max-width: 900px) {
             .alerts-list-head { display: none; }
             .alert-entry { grid-template-columns: 1fr auto; gap: 9px 16px; min-height: 0; }
@@ -63,44 +77,197 @@
 <body class="authority-app">
     <header class="authority-header">
         <a href="response-dashboard.html" class="authority-brand"><span class="brand-mark">R</span><span><b>विपद्Sathi</b><small>AUTHORITY OPERATIONS</small></span></a>
-        <div class="authority-header-right"><span class="header-area">Bagmati Control Room</span><button class="header-bell" aria-label="Notifications">◦<i></i></button><a class="authority-user" href="authority-profile.html"><span>AS</span><strong>Alex Sharma</strong><small>Traffic Inspector</small></a><a class="header-logout" href="login-page.html">Log out</a></div>
+        <div class="authority-header-right"><span class="header-area">Bagmati Control Room</span><button class="header-bell" aria-label="Notifications">&#9702;<i></i></button><a class="authority-user" href="authority-profile.html"><span>AS</span><strong>Alex Sharma</strong><small>Traffic Inspector</small></a><a class="header-logout" href="login-page.html">Log out</a></div>
     </header>
     <main class="authority-layout">
-        <aside class="authority-sidebar"><div class="sidebar-caption">Operations</div><nav><a href="response-dashboard.html">Overview</a><a href="live-cameras.html">Live Cameras</a><a class="active" href="incident-alerts.html">Incident Alerts <b>4</b></a><a href="live-map.html">Live Map</a><a href="incident-history.html">Incident History</a><div class="sidebar-rule"></div><a href="authority-profile.html">Profile</a><a href="authority-settings.html">Settings</a></nav><div class="sidebar-footer"><span class="online-dot"></span>Systems operational<small>Last sync 18:42:09</small></div></aside>
+        <aside class="authority-sidebar"><div class="sidebar-caption">Operations</div><nav><a href="response-dashboard.html">Overview</a><a href="live-cameras.html">Live Cameras</a><a class="active" href="incident-alerts.html">Incident Alerts <b id="sidebarAlertCount">4</b></a><a href="live-map.html">Live Map</a><a href="incident-history.html">Incident History</a><div class="sidebar-rule"></div><a href="camera-alert-emails.html">Alert Emails</a><a href="authority-profile.html">Profile</a><a href="authority-settings.html">Settings</a></nav><div class="sidebar-footer"><span class="online-dot"></span>Systems operational<small id="lastSyncLabel">Syncing&#8230;</small></div></aside>
+
         <section class="authority-content alerts-content">
-            <div class="authority-page-heading alerts-heading"><div><span class="eyebrow">Unified incident inbox</span><h1>Incident Alerts</h1><p>Incoming incidents detected by cameras and reported by citizens in your assigned area.</p><span class="attention-note"><i></i> 4 alerts require attention</span></div></div>
-            <div class="alert-controls"><div class="search-field"><input id="alertSearch" type="search" placeholder="Search by incident, location, source or ID" aria-label="Search incident alerts"></div><label class="alert-filter" for="alertStatus">Filter by status <select id="alertStatus"><option value="all">All alerts</option><option value="unverified">Unverified</option><option value="review">Under review</option><option value="dispatched">Response dispatched</option><option value="resolved">Resolved</option></select></label></div>
+            <div class="authority-page-heading alerts-heading">
+                <div>
+                    <span class="eyebrow">Unified incident inbox</span>
+                    <h1>Incident Alerts</h1>
+                    <p>Incoming incidents detected by cameras and reported by citizens in your assigned area.</p>
+                    <span class="attention-note" id="attentionNote"><i></i> <span id="attentionText">Loading&#8230;</span></span>
+                </div>
+            </div>
+
+            <div class="alert-controls">
+                <div class="search-field">
+                    <input id="alertSearch" type="search" placeholder="Search by incident, location, source or ID" aria-label="Search incident alerts">
+                </div>
+                <span class="live-badge" title="Table updates automatically"><span class="live-badge-dot"></span>LIVE</span>
+                <label class="alert-filter" for="alertStatus">Filter by status
+                    <select id="alertStatus">
+                        <option value="all">All alerts</option>
+                        <option value="unverified">Unverified</option>
+                        <option value="review">Under review</option>
+                        <option value="dispatched">Response dispatched</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                </label>
+            </div>
+
             <section class="alerts-list" id="alertsList" aria-label="Incident alert list">
                 <div class="alerts-list-head"><span>Incident</span><span>Date and time</span><span>Severity</span><span>Status</span><span></span></div>
-                <a class="alert-entry urgent" data-status="unverified" href="incident-detail.html?id=RK-2418"><div class="entry-main"><div class="entry-source"><span class="source-icon camera">C</span> Camera detected <small>· CAM-KTM-041</small></div><strong>Road accident</strong><span class="entry-location">Tribhuvan Highway, Thankot checkpoint</span><span class="entry-description">Two vehicles collided; traffic is partially blocked.</span></div><time class="entry-time" datetime="2026-09-19T18:37:00+05:45">19 Sep 2026<br>18:37 NPT</time><span class="entry-severity critical"><i class="severity-dot"></i>Critical</span><span class="entry-status unverified">Unverified</span><span class="entry-arrow">→</span></a>
-                <a class="alert-entry" data-status="review" href="incident-detail.html?id=RK-2417"><div class="entry-main"><div class="entry-source"><span class="source-icon">C</span> Citizen report <small>· RK-2417</small></div><strong>Flooded road</strong><span class="entry-location">Tokha Road, Ward 5</span><span class="entry-description">Water across both lanes; visibility is reduced.</span></div><time class="entry-time" datetime="2026-09-19T18:22:00+05:45">19 Sep 2026<br>18:22 NPT</time><span class="entry-severity high"><i class="severity-dot"></i>High</span><span class="entry-status review">Under review</span><span class="entry-arrow">→</span></a>
-                <a class="alert-entry" data-status="dispatched" href="incident-detail.html?id=RK-2414"><div class="entry-main"><div class="entry-source"><span class="source-icon camera">C</span> Camera detected <small>· CAM-KTM-018</small></div><strong>Stopped vehicle</strong><span class="entry-location">Ring Road, Kalanki interchange</span><span class="entry-description">Shoulder obstruction detected by camera AI.</span></div><time class="entry-time" datetime="2026-09-19T17:58:00+05:45">19 Sep 2026<br>17:58 NPT</time><span class="entry-severity"><i class="severity-dot"></i>Medium</span><span class="entry-status dispatched">Response dispatched</span><span class="entry-arrow">→</span></a>
-                <a class="alert-entry" data-status="review" href="incident-detail.html?id=RK-2411"><div class="entry-main"><div class="entry-source"><span class="source-icon">C</span> Citizen report <small>· RK-2411</small></div><strong>Landslide risk</strong><span class="entry-location">Prithvi Highway, Naubise</span><span class="entry-description">Loose soil reported beside the carriageway.</span></div><time class="entry-time" datetime="2026-09-19T17:41:00+05:45">19 Sep 2026<br>17:41 NPT</time><span class="entry-severity high"><i class="severity-dot"></i>High</span><span class="entry-status review">Under review</span><span class="entry-arrow">→</span></a>
-                <a class="alert-entry" data-status="unverified" href="incident-detail.html?id=RK-2408"><div class="entry-main"><div class="entry-source"><span class="source-icon">C</span> Citizen report <small>· RK-2408</small></div><strong>Fire near roadway</strong><span class="entry-location">Chabahil Ring Road, Ward 7</span><span class="entry-description">Smoke visible from an adjacent structure.</span></div><time class="entry-time" datetime="2026-09-19T17:12:00+05:45">19 Sep 2026<br>17:12 NPT</time><span class="entry-severity critical"><i class="severity-dot"></i>Critical</span><span class="entry-status unverified">Unverified</span><span class="entry-arrow">→</span></a>
+
+                <!-- Live camera rows are prepended here -->
+                <div id="liveAlertsContainer"></div>
+
+                <!-- Static historical rows -->
+                <a class="alert-entry" data-status="review" href="incident-detail.html?id=RK-2417"><div class="entry-main"><div class="entry-source"><span class="source-icon">C</span> Citizen report <small>&#xb7; RK-2417</small></div><strong>Flooded road</strong><span class="entry-location">Tokha Road, Ward 5</span><span class="entry-description">Water across both lanes; visibility is reduced.</span></div><time class="entry-time" datetime="2026-09-19T18:22:00+05:45">19 Sep 2026<br>18:22 NPT</time><span class="entry-severity high"><i class="severity-dot"></i>High</span><span class="entry-status review">Under review</span><span class="entry-arrow">&#8594;</span></a>
+                <a class="alert-entry" data-status="dispatched" href="incident-detail.html?id=RK-2414"><div class="entry-main"><div class="entry-source"><span class="source-icon camera">C</span> Camera detected <small>&#xb7; CAM-KTM-018</small></div><strong>Stopped vehicle</strong><span class="entry-location">Ring Road, Kalanki interchange</span><span class="entry-description">Shoulder obstruction detected by camera AI.</span></div><time class="entry-time" datetime="2026-09-19T17:58:00+05:45">19 Sep 2026<br>17:58 NPT</time><span class="entry-severity"><i class="severity-dot"></i>Medium</span><span class="entry-status dispatched">Response dispatched</span><span class="entry-arrow">&#8594;</span></a>
+                <a class="alert-entry" data-status="review" href="incident-detail.html?id=RK-2411"><div class="entry-main"><div class="entry-source"><span class="source-icon">C</span> Citizen report <small>&#xb7; RK-2411</small></div><strong>Landslide risk</strong><span class="entry-location">Prithvi Highway, Naubise</span><span class="entry-description">Loose soil reported beside the carriageway.</span></div><time class="entry-time" datetime="2026-09-19T17:41:00+05:45">19 Sep 2026<br>17:41 NPT</time><span class="entry-severity high"><i class="severity-dot"></i>High</span><span class="entry-status review">Under review</span><span class="entry-arrow">&#8594;</span></a>
+                <a class="alert-entry" data-status="unverified" href="incident-detail.html?id=RK-2408"><div class="entry-main"><div class="entry-source"><span class="source-icon">C</span> Citizen report <small>&#xb7; RK-2408</small></div><strong>Fire near roadway</strong><span class="entry-location">Chabahil Ring Road, Ward 7</span><span class="entry-description">Smoke visible from an adjacent structure.</span></div><time class="entry-time" datetime="2026-09-19T17:12:00+05:45">19 Sep 2026<br>17:12 NPT</time><span class="entry-severity critical"><i class="severity-dot"></i>Critical</span><span class="entry-status unverified">Unverified</span><span class="entry-arrow">&#8594;</span></a>
+
                 <div class="alerts-empty" id="alertsEmpty">No incident alerts match this search.</div>
             </section>
         </section>
     </main>
+
     <script>
-        const search = document.getElementById('alertSearch');
-        const status = document.getElementById('alertStatus');
-        const entries = [...document.querySelectorAll('.alert-entry')];
-        const empty = document.getElementById('alertsEmpty');
-        function filterAlerts() {
-            const query = search.value.trim().toLowerCase();
-            const selectedStatus = status.value;
-            let visible = 0;
-            entries.forEach((entry) => {
-                const matchesStatus = selectedStatus === 'all' || entry.dataset.status === selectedStatus;
-                const matchesSearch = !query || entry.textContent.toLowerCase().includes(query);
-                entry.hidden = !(matchesStatus && matchesSearch);
-                if (!entry.hidden) visible += 1;
-            });
-            empty.style.display = visible ? 'none' : 'block';
+    (() => {
+        const $ = id => document.getElementById(id);
+
+        // ── helpers ──────────────────────────────────────────────────
+        function formatLabel(raw) {
+            return (raw || 'Unknown').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
         }
-        search.addEventListener('input', filterAlerts);
-        status.addEventListener('change', filterAlerts);
+
+        function formatTimestamp(iso) {
+            if (!iso) return '&mdash;';
+            const d = new Date(iso);
+            if (isNaN(d)) return iso;
+            const date = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            return date + '<br>' + time + ' NPT';
+        }
+
+        function severityFor(event) {
+            const e = (event || '').toLowerCase();
+            if (e.includes('bus') || e.includes('car')) return 'critical';
+            return 'high';
+        }
+
+        function buildDescription(alert) {
+            const parts = [];
+            if (alert.total_vehicles) parts.push(alert.total_vehicles + ' vehicle' + (alert.total_vehicles > 1 ? 's' : '') + ' detected');
+            if (alert.ambulance_low && alert.ambulance_high) parts.push(alert.ambulance_low + '\u2013' + alert.ambulance_high + ' ambulances recommended');
+            if (alert.confidence) parts.push('Confidence: ' + alert.confidence + '%');
+            return parts.join(' \u00b7 ') || 'Camera AI detection confirmed.';
+        }
+
+        // ── track last seen ts per camera ────────────────────────────
+        const _lastSeen = {};
+
+        function buildLiveRow(alert) {
+            const sev   = severityFor(alert.event);
+            const label = formatLabel(alert.event);
+            const cam   = 'CAM-0' + (alert.camera_id + 1);
+            const desc  = buildDescription(alert);
+            const sevCap = sev.charAt(0).toUpperCase() + sev.slice(1);
+
+            const a = document.createElement('a');
+            a.className        = 'alert-entry urgent live-row';
+            a.dataset.status   = 'unverified';
+            a.dataset.liveRow  = 'true';
+            a.dataset.cameraId = alert.camera_id;
+            a.href = '#';
+
+            a.innerHTML =
+                '<div class="entry-main">' +
+                  '<div class="entry-source">' +
+                    '<span class="source-icon camera">C</span> Camera detected ' +
+                    '<small>\u00b7 ' + cam + ' \u2014 ' + (alert.camera_name || '') + '</small>' +
+                  '</div>' +
+                  '<strong>' + label + '</strong>' +
+                  '<span class="entry-location">' + label + ' detected by ' + cam + '</span>' +
+                  '<span class="entry-description">' + desc + '</span>' +
+                '</div>' +
+                '<time class="entry-time">' + formatTimestamp(alert.timestamp) + '</time>' +
+                '<span class="entry-severity ' + sev + '"><i class="severity-dot"></i>' + sevCap + '</span>' +
+                '<span class="entry-status unverified">Unverified</span>' +
+                '<span class="entry-arrow">&#8594;</span>';
+            return a;
+        }
+
+        // ── container for live rows ──────────────────────────────────
+        const container = $('liveAlertsContainer');
+
+        function renderLiveAlerts(alerts) {
+            let added = 0;
+            (alerts || []).forEach(function(alert) {
+                const key = alert.camera_id;
+                const ts  = alert.timestamp || '';
+                if (_lastSeen[key] === ts) return;
+
+                // remove previous row for this camera
+                const old = container.querySelector('[data-camera-id="' + key + '"][data-live-row]');
+                if (old) old.remove();
+
+                _lastSeen[key] = ts;
+                container.prepend(buildLiveRow(alert));
+                added++;
+            });
+            return added;
+        }
+
+        // ── counts ───────────────────────────────────────────────────
+        function refreshCounts() {
+            const liveCount = container.querySelectorAll('[data-live-row="true"]:not([hidden])').length;
+            const totalEntries = document.querySelectorAll('.alert-entry:not([hidden])').length;
+            const attn = liveCount + 2;
+            const attnEl = $('attentionText');
+            const sbEl   = $('sidebarAlertCount');
+            if (attnEl) attnEl.textContent = attn + ' alert' + (attn !== 1 ? 's' : '') + ' require attention';
+            if (sbEl)   sbEl.textContent   = totalEntries;
+        }
+
+        // ── search + filter ──────────────────────────────────────────
+        const searchEl = $('alertSearch');
+        const statusEl = $('alertStatus');
+        const emptyEl  = $('alertsEmpty');
+
+        function filterAlerts() {
+            const q   = (searchEl ? searchEl.value : '').trim().toLowerCase();
+            const fil = statusEl  ? statusEl.value  : 'all';
+            const entries = document.querySelectorAll('.alert-entry');
+            let vis = 0;
+            entries.forEach(function(e) {
+                const ok = (fil === 'all' || e.dataset.status === fil) &&
+                           (!q || e.textContent.toLowerCase().includes(q));
+                e.hidden = !ok;
+                if (ok) vis++;
+            });
+            if (emptyEl) emptyEl.style.display = vis ? 'none' : 'block';
+            refreshCounts();
+        }
+
+        if (searchEl) searchEl.addEventListener('input',  filterAlerts);
+        if (statusEl) statusEl.addEventListener('change', filterAlerts);
+
+        // ── live poll ────────────────────────────────────────────────
+        async function pollLiveAlerts() {
+            try {
+                const res = await fetch('/api/live-alerts');
+                if (!res.ok) return;
+                const data = await res.json();
+                const added = renderLiveAlerts(data.alerts || []);
+                if (added > 0) filterAlerts();
+                const syncEl = $('lastSyncLabel');
+                if (syncEl) {
+                    const now = new Date();
+                    syncEl.textContent = 'Last sync ' + now.toTimeString().split(' ')[0];
+                }
+            } catch (_) { /* network transient */ }
+        }
+
+        pollLiveAlerts();
+        setInterval(pollLiveAlerts, 5000);
+        refreshCounts();
+    })();
     </script>
+
     <script src="authority.js"></script>
 </body>
 </html>

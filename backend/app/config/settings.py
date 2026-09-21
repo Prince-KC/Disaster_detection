@@ -23,6 +23,12 @@ class Settings:
     TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
     TELEGRAM_CHAT_ID: str = os.getenv("TELEGRAM_CHAT_ID", "")
 
+    GMAIL_USER: str = os.getenv("GMAIL_USER", "bipadsathi1@gmail.com")
+    GMAIL_APP_PASSWORD: str = os.getenv("GMAIL_APP_PASSWORD", "")
+    AUTHORITY_EMAILS: str = os.getenv("AUTHORITY_EMAILS", "bipadsathi1@gmail.com")
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", 587))
+
     MODEL_PATH: str = os.getenv("MODEL_PATH", "models/monkey_detector.pt")
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO").upper()
 

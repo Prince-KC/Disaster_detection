@@ -5,6 +5,79 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Live Cameras - विपद्Sathi</title>
   <link rel="stylesheet" href="authority.css">
+  <style>
+    /* ── camera toggle button ──────────────────────────────────────── */
+    .cam-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 10px;
+      padding: 7px 16px;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      cursor: pointer;
+      transition: background .18s, color .18s, opacity .18s;
+      user-select: none;
+    }
+    .cam-toggle-btn.on {
+      background: #e8f5e9;
+      color: #2e6b3e;
+    }
+    .cam-toggle-btn.on:hover { background: #d0edda; }
+    .cam-toggle-btn.off {
+      background: #fdecea;
+      color: #913030;
+    }
+    .cam-toggle-btn.off:hover { background: #f7d6d4; }
+    .cam-toggle-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    .cam-toggle-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .cam-toggle-btn.on  .cam-toggle-dot { background: #2e6b3e; }
+    .cam-toggle-btn.off .cam-toggle-dot { background: #913030; }
+
+    /* ── camera-info gets flex column when toggle is present ─────── */
+    .camera-info { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .camera-info-row { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+
+    /* ── dimmed overlay when camera is off ───────────────────────── */
+    .camera-screen.cam-off::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.62);
+      z-index: 5;
+      pointer-events: none;
+    }
+    .camera-screen { position: relative; }
+
+    /* ── "CAMERA OFF" badge inside overlay ───────────────────────── */
+    .cam-off-label {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 6;
+      padding: 8px 18px;
+      border-radius: 4px;
+      background: rgba(20,20,24,.85);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+    .camera-screen.cam-off .cam-off-label { display: block; }
+  </style>
 </head>
 <body class="authority-app">
   <header class="authority-header">
@@ -17,7 +90,7 @@
     </a>
     <div class="authority-header-right">
       <span class="header-area">Bagmati Control Room</span>
-      <button class="header-bell">◦<i></i></button>
+      <button class="header-bell">&#9702;<i></i></button>
       <a class="authority-user" href="authority-profile.html">
         <span>AS</span>
         <strong>Alex Sharma</strong>
@@ -37,6 +110,7 @@
         <a href="live-map.html">Live Map</a>
         <a href="incident-history.html">Incident History</a>
         <div class="sidebar-rule"></div>
+        <a href="camera-alert-emails.html">Alert Emails</a>
         <a href="authority-profile.html">Profile</a>
         <a href="authority-settings.html">Settings</a>
       </nav>
@@ -69,6 +143,7 @@
       </div>
 
       <div class="camera-grid" id="cameraGrid">
+
         <!-- Camera 0: Laptop Camera -->
         <a data-searchable data-status="active" data-camera-id="0" class="camera-feed" href="incident-detail.html?id=RK-2418">
           <div class="camera-screen" id="cameraScreen0">
@@ -76,13 +151,26 @@
               <span class="live-dot">LIVE · HD 720p</span>
               <span>AI MONITORING</span>
             </div>
+            <span class="cam-off-label">&#9646;&#9646; Camera Off</span>
           </div>
           <div class="camera-info">
-            <div>
-              <strong>CAM-01 (Laptop Camera)</strong>
-              <small>Primary Feed · Integrated Laptop Camera (Index 0)</small>
+            <div class="camera-info-row">
+              <div>
+                <strong>CAM-01 (Laptop Camera)</strong>
+                <small>Primary Feed · Integrated Laptop Camera (Index 0)</small>
+              </div>
+              <span class="camera-alert camera-status-tag" style="color:#387352">ACTIVE</span>
             </div>
-            <span class="camera-alert camera-status-tag" style="color:#387352">ACTIVE</span>
+            <button
+              class="cam-toggle-btn on"
+              id="toggleBtn0"
+              data-camera-id="0"
+              data-enabled="true"
+              onclick="event.preventDefault(); toggleCamera(0)"
+              aria-label="Toggle CAM-01">
+              <span class="cam-toggle-dot"></span>
+              <span class="cam-toggle-label">Camera On</span>
+            </button>
           </div>
         </a>
 
@@ -93,18 +181,95 @@
               <span class="live-dot">LIVE · HD 720p</span>
               <span>AI MONITORING</span>
             </div>
+            <span class="cam-off-label">&#9646;&#9646; Camera Off</span>
           </div>
           <div class="camera-info">
-            <div>
-              <strong>CAM-02 (USB Webcam)</strong>
-              <small>Secondary Feed · External USB Webcam (Index 1)</small>
+            <div class="camera-info-row">
+              <div>
+                <strong>CAM-02 (USB Webcam)</strong>
+                <small>Secondary Feed · External USB Webcam (Index 1)</small>
+              </div>
+              <span class="camera-alert camera-status-tag" style="color:#387352">ACTIVE</span>
             </div>
-            <span class="camera-alert camera-status-tag" style="color:#387352">ACTIVE</span>
+            <button
+              class="cam-toggle-btn on"
+              id="toggleBtn1"
+              data-camera-id="1"
+              data-enabled="true"
+              onclick="event.preventDefault(); toggleCamera(1)"
+              aria-label="Toggle CAM-02">
+              <span class="cam-toggle-dot"></span>
+              <span class="cam-toggle-label">Camera On</span>
+            </button>
           </div>
         </a>
+
       </div>
     </section>
   </main>
+
+  <script>
+  // ── camera toggle ──────────────────────────────────────────────────────
+  async function toggleCamera(cameraId) {
+    const btn    = document.getElementById('toggleBtn' + cameraId);
+    const screen = document.getElementById('cameraScreen' + cameraId);
+    if (!btn) return;
+
+    const currentlyEnabled = btn.dataset.enabled === 'true';
+    const newEnabled       = !currentlyEnabled;
+
+    btn.disabled = true;
+    try {
+      const action = newEnabled ? 'enable' : 'disable';
+      const res = await fetch('/api/cameras/' + cameraId + '/' + action, { method: 'POST' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      // Update button state
+      btn.dataset.enabled = String(newEnabled);
+      _applyCameraToggleUI(cameraId, newEnabled);
+    } catch (e) {
+      console.error('Camera toggle failed:', e);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function _applyCameraToggleUI(cameraId, enabled) {
+    const btn    = document.getElementById('toggleBtn' + cameraId);
+    const screen = document.getElementById('cameraScreen' + cameraId);
+    const label  = btn ? btn.querySelector('.cam-toggle-label') : null;
+    const imgEl  = screen ? screen.querySelector('.live-camera-stream') : null;
+
+    if (btn) {
+      btn.classList.toggle('on',  enabled);
+      btn.classList.toggle('off', !enabled);
+    }
+    if (label) label.textContent = enabled ? 'Camera On' : 'Camera Off';
+    if (screen) {
+      screen.classList.toggle('cam-off', !enabled);
+      // When re-enabled, force stream img to reload
+      if (enabled && imgEl) {
+        imgEl.src = '/api/video_feed?camera_id=' + cameraId + '&_t=' + Date.now();
+      }
+    }
+  }
+
+  // ── sync toggle state with /cameras/status on load ───────────────────
+  (async function syncInitialState() {
+    try {
+      const res = await fetch('/api/cameras/status');
+      if (!res.ok) return;
+      const data = await res.json();
+      (data.cameras || []).forEach(function(cam) {
+        const btn = document.getElementById('toggleBtn' + cam.id);
+        if (!btn) return;
+        const enabled = cam.enabled !== false;   // default true if field missing
+        btn.dataset.enabled = String(enabled);
+        _applyCameraToggleUI(cam.id, enabled);
+      });
+    } catch (_) { /* ignore */ }
+  })();
+  </script>
 
   <script src="authority.js"></script>
 </body>

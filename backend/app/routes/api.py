@@ -10,9 +10,10 @@ import threading
 import datetime
 import numpy as np
 from typing import Optional, Dict, Any, List
-from fastapi import APIRouter, status, Query, Body
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, status, Query, Body, UploadFile, File, Form, HTTPException
+from fastapi.responses import StreamingResponse, JSONResponse
 from app.utils.logger import get_logger
+from app.services.email_service import email_service
 
 # Load env vars (.env file at project root)
 from dotenv import load_dotenv
@@ -85,8 +86,22 @@ _load_disaster_model()
 _inference_lock = threading.Lock()
 
 # ============================================================================
-# Telegram Alert Helper
+# Telegram Alert Helper & Direct Endpoint Resolution
 # ============================================================================
+try:
+    import urllib3.util.connection
+    _orig_create_connection = urllib3.util.connection.create_connection
+
+    def _patched_create_connection(address, *args, **kwargs):
+        host, port = address
+        if host == "api.telegram.org":
+            host = "149.154.166.110"
+        return _orig_create_connection((host, port), *args, **kwargs)
+
+    urllib3.util.connection.create_connection = _patched_create_connection
+except Exception as _patch_exc:
+    logger.debug(f"Telegram DNS patch skipped: {_patch_exc}")
+
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
 TELEGRAM_CHAT_ID   = os.getenv("TELEGRAM_CHAT_ID",   "").strip()
 
@@ -210,6 +225,13 @@ def _send_telegram_alert(cam_id: int, class_name: str, confidence: float,
     threading.Thread(
         target=_record_detection_supabase,
         args=(cam_id, class_name, confidence, vehicle_info),
+        daemon=True
+    ).start()
+
+    # Also dispatch Email alert to authorities in background
+    threading.Thread(
+        target=email_service.send_detection_email,
+        args=(cam_id, class_name, confidence, image_bytes, vehicle_info),
         daemon=True
     ).start()
 
@@ -431,6 +453,7 @@ class CameraStreamManager:
         self._last_result:   Dict[int, Optional[Dict]]   = {}
         self._online_status: Dict[int, bool]             = {}
         self._latest_disaster: Dict[int, Dict[str, Any]] = {}
+        self._disabled:        Dict[int, bool]             = {}   # True = user turned camera off
         self._init_lock = threading.Lock()
 
     # ------------------------------------------------------------------
@@ -444,6 +467,20 @@ class CameraStreamManager:
                     (60, 375), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (120, 180, 150), 2, cv2.LINE_AA)
         cv2.putText(img, f"Bagmati Monitoring Grid — {time.strftime('%Y-%m-%d %H:%M:%S')}",
                     (60, 430), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (160, 165, 160), 1, cv2.LINE_AA)
+        _, enc = cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 90])
+        return enc.tobytes()
+
+    def _create_disabled_frame(self, camera_id: int) -> bytes:
+        """Dark frame shown in the MJPEG stream when the camera is turned off."""
+        img = np.zeros((720, 1280, 3), dtype=np.uint8)
+        img[:] = (10, 10, 12)
+        cam_label = "Laptop Camera (Index 0)" if camera_id == 0 else "External USB Webcam (Index 1)"
+        cv2.putText(img, f"CAM-0{camera_id + 1} — {cam_label}",
+                    (60, 310), cv2.FONT_HERSHEY_SIMPLEX, 1.1, (200, 200, 200), 2, cv2.LINE_AA)
+        cv2.putText(img, "Camera disabled — turn on to resume monitoring",
+                    (60, 368), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (80, 80, 90), 2, cv2.LINE_AA)
+        cv2.putText(img, f"Bagmati Monitoring Grid — {time.strftime('%Y-%m-%d %H:%M:%S')}",
+                    (60, 422), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (55, 60, 65), 1, cv2.LINE_AA)
         _, enc = cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 90])
         return enc.tobytes()
 
@@ -711,7 +748,18 @@ class CameraStreamManager:
                 self._inf_threads[camera_id] = it
                 it.start()
 
+    def set_camera_enabled(self, camera_id: int, enabled: bool) -> None:
+        """Enable or disable a camera (frontend toggle). Thread-safe."""
+        with self._init_lock:
+            self._disabled[camera_id] = not enabled
+
+    def is_camera_enabled(self, camera_id: int) -> bool:
+        return not self._disabled.get(camera_id, False)
+
     def get_jpeg_frame(self, camera_id: int) -> bytes:
+        # Return a static disabled frame without touching camera threads
+        if self._disabled.get(camera_id, False):
+            return self._create_disabled_frame(camera_id)
         self.ensure_camera(camera_id)
         with self._jpeg_locks.get(camera_id, self._init_lock):
             return self._latest_jpeg.get(camera_id, self._create_standby_frame(camera_id))
@@ -722,10 +770,11 @@ class CameraStreamManager:
                                               ("CAM-02 (USB Webcam)", "External")]):
             disaster_info = self._latest_disaster.get(cid, {})
             cam_data: Dict[str, Any] = {
-                "id": cid,
-                "name": cname,
-                "type": ctype,
-                "online": self._online_status.get(cid, False),
+                "id":      cid,
+                "name":    cname,
+                "type":    ctype,
+                "online":  self._online_status.get(cid, False),
+                "enabled": self.is_camera_enabled(cid),
             }
             if disaster_info:
                 cam_data["latest_event"]    = disaster_info.get("event")
@@ -781,4 +830,341 @@ async def video_feed_by_id(camera_id: int):
 async def get_cameras_status():
     """Returns online/offline status of configured cameras."""
     return camera_stream_manager.get_status()
+
+
+@router.get("/live-alerts", summary="Latest Confirmed Disaster Alerts", tags=["Alerts"])
+async def get_live_alerts():
+    """
+    Returns the latest confirmed disaster event detected per camera.
+    The frontend polls this endpoint every few seconds to update the Incident Alerts table.
+    """
+    alerts = []
+    status = camera_stream_manager.get_status()
+    for cam in status.get("cameras", []):
+        event = cam.get("latest_event")
+        if not event:
+            continue
+        ambulance_low  = cam.get("ambulance_low")
+        ambulance_high = cam.get("ambulance_high")
+        vehicle_counts = cam.get("vehicle_counts", {})
+        total_vehicles = sum(vehicle_counts.values()) if vehicle_counts else None
+        alerts.append({
+            "camera_id":      cam["id"],
+            "camera_name":    cam["name"],
+            "event":          event,
+            "confidence":     cam.get("confidence"),
+            "timestamp":      cam.get("timestamp"),
+            "vehicle_counts": vehicle_counts,
+            "total_vehicles": total_vehicles,
+            "ambulance_low":  ambulance_low,
+            "ambulance_high": ambulance_high,
+        })
+    # Sort newest first
+    alerts.sort(key=lambda a: a["timestamp"] or "", reverse=True)
+    return {"alerts": alerts, "count": len(alerts)}
+
+
+@router.post("/cameras/{camera_id}/enable", summary="Enable a camera", tags=["Live Feed"])
+async def enable_camera(camera_id: int):
+    """Re-enable a camera that was previously disabled via the UI toggle."""
+    if camera_id not in (0, 1):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Unknown camera ID")
+    camera_stream_manager.set_camera_enabled(camera_id, True)
+    logger.info(f"Camera {camera_id} enabled via API.")
+    return {"camera_id": camera_id, "enabled": True}
+
+
+@router.post("/cameras/{camera_id}/disable", summary="Disable a camera", tags=["Live Feed"])
+async def disable_camera(camera_id: int):
+    """Disable a camera so it stops sending a live stream (shows an off-screen)."""
+    if camera_id not in (0, 1):
+        raise HTTPException(status_code=404, detail="Unknown camera ID")
+    camera_stream_manager.set_camera_enabled(camera_id, False)
+    logger.info(f"Camera {camera_id} disabled via API.")
+    return {"camera_id": camera_id, "enabled": False}
+
+
+# ============================================================================
+# Citizen Incident Report Submission
+# ============================================================================
+_UPLOAD_DIR = os.path.join(_PROJECT_ROOT, "uploads", "reports")
+os.makedirs(_UPLOAD_DIR, exist_ok=True)
+
+
+def _send_citizen_report_telegram(
+    report_id: str,
+    incident_type: str,
+    incident_time: str,
+    location: str,
+    description: str,
+    saved_files: List[str],
+    report_dir: str
+) -> None:
+    """Dispatches a formatted Telegram alert to authorities when a citizen submits an incident."""
+    bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip() or TELEGRAM_BOT_TOKEN
+    chat_id_raw = os.getenv("TELEGRAM_CHAT_ID", "").strip() or TELEGRAM_CHAT_ID
+    chat_ids = [c.strip() for c in chat_id_raw.split(",") if c.strip()]
+
+    if not bot_token or not chat_ids:
+        logger.warning(f"[Report {report_id}] Telegram not sent: token or chat_id not configured.")
+        return
+
+    # Choose incident emoji
+    t_clean = incident_type.lower().replace("-", "_").replace(" ", "_")
+    emoji = "🚨"
+    if any(k in t_clean for k in ["accident", "crash", "car", "bike", "bus", "vehicle"]):
+        emoji = "🚗"
+    elif any(k in t_clean for k in ["flood", "water", "river"]):
+        emoji = "🌊"
+    elif any(k in t_clean for k in ["slide", "landslide"]):
+        emoji = "⛰️"
+    elif any(k in t_clean for k in ["fire", "smoke", "burn"]):
+        emoji = "🔥"
+    elif any(k in t_clean for k in ["block", "blocked", "traffic"]):
+        emoji = "🚧"
+
+    # Truncate description if too long so total caption doesn't exceed 1000 chars for sendPhoto
+    clean_desc = (description or "").strip()
+    if len(clean_desc) > 400:
+        clean_desc = clean_desc[:397] + "..."
+
+    files_text = f"{len(saved_files)} file(s)"
+    if saved_files:
+        files_text += f" ({', '.join(saved_files)})"
+
+    caption = (
+        f"📢 <b>विपद्Sathi CITIZEN INCIDENT REPORT</b>\n\n"
+        f"🆔 <b>Report ID:</b> <code>{report_id}</code>\n"
+        f"⚠️ <b>Incident Type:</b> {emoji} <b>{incident_type}</b>\n"
+        f"📍 <b>Location:</b> {location}\n"
+        f"⏰ <b>Incident Time:</b> {incident_time}\n"
+        f"🕒 <b>Submitted:</b> {datetime.datetime.now().strftime('%Y-%m-%d %I:%M %p')}\n"
+        f"📝 <b>Description:</b>\n{clean_desc}\n\n"
+        f"📎 <b>Evidence:</b> {files_text}"
+    )
+
+    # Check for image file in saved_files
+    primary_image_path = None
+    image_exts = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
+    for fname in saved_files:
+        _, ext = os.path.splitext(fname.lower())
+        if ext in image_exts:
+            full_path = os.path.join(report_dir, fname)
+            if os.path.isfile(full_path):
+                primary_image_path = full_path
+                break
+
+    img_bytes = None
+    if primary_image_path:
+        try:
+            with open(primary_image_path, "rb") as f:
+                img_bytes = f.read()
+        except Exception as e:
+            logger.warning(f"[Report {report_id}] Could not read evidence image {primary_image_path}: {e}")
+
+    try:
+        import requests as _req
+        for target_chat_id in chat_ids:
+            try:
+                if img_bytes:
+                    url = f"https://api.telegram.org/bot{bot_token}/sendPhoto"
+                    files = {"photo": (os.path.basename(primary_image_path), img_bytes, "image/jpeg")}
+                    data = {"chat_id": target_chat_id, "caption": caption, "parse_mode": "HTML"}
+                    resp = _req.post(url, data=data, files=files, timeout=10)
+                else:
+                    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+                    data = {"chat_id": target_chat_id, "text": caption, "parse_mode": "HTML"}
+                    resp = _req.post(url, json=data, timeout=10)
+
+                if resp.status_code == 200:
+                    logger.info(f"[Report {report_id}] Telegram alert delivered to {target_chat_id}")
+                else:
+                    logger.warning(f"[Report {report_id}] Telegram API {resp.status_code} for {target_chat_id}: {resp.text[:200]}")
+            except Exception as e:
+                logger.error(f"[Report {report_id}] Error sending Telegram alert to {target_chat_id}: {e}")
+    except Exception as exc:
+        logger.error(f"[Report {report_id}] Unexpected error in Telegram alert dispatch: {exc}")
+
+
+@router.post("/reports/submit", summary="Submit a citizen incident report", tags=["Reports"])
+async def submit_report(
+    incident_type: str = Form(...),
+    incident_time: str = Form(...),
+    location:      str = Form(...),
+    description:   str = Form(...),
+    evidence: List[UploadFile] = File(default=[]),
+):
+    """
+    Accepts a citizen incident report (multipart/form-data).
+    Saves uploaded evidence files to disk under uploads/reports/<report_id>/
+    and sends Telegram notification alerts to authorities.
+    """
+    import uuid, shutil
+
+    report_id  = "RK-" + str(uuid.uuid4())[:6].upper()
+    report_dir = os.path.join(_UPLOAD_DIR, report_id)
+    os.makedirs(report_dir, exist_ok=True)
+
+    saved_files: List[str] = []
+    for upload in evidence:
+        if not upload.filename:
+            continue
+        safe_name = upload.filename.replace("..", "").replace("/", "_").replace("\\", "_")
+        dest = os.path.join(report_dir, safe_name)
+        with open(dest, "wb") as f:
+            shutil.copyfileobj(upload.file, f)
+        saved_files.append(safe_name)
+        logger.info(f"[Report {report_id}] saved evidence file: {safe_name}")
+
+    logger.info(
+        f"[Report {report_id}] submitted — type={incident_type!r} "
+        f"location={location!r} files={len(saved_files)}"
+    )
+
+    # Dispatch Telegram alert in background thread
+    threading.Thread(
+        target=_send_citizen_report_telegram,
+        args=(report_id, incident_type, incident_time, location, description, saved_files, report_dir),
+        daemon=True
+    ).start()
+
+    # Dispatch Email alert to authorities in background thread
+    threading.Thread(
+        target=email_service.send_citizen_report_email,
+        args=(report_id, incident_type, incident_time, location, description, saved_files, report_dir),
+        daemon=True
+    ).start()
+
+    return JSONResponse({
+        "success":       True,
+        "report_id":     report_id,
+        "incident_type": incident_type,
+        "incident_time": incident_time,
+        "location":      location,
+        "files_saved":   saved_files,
+        "message":       "Report received. Authorities have been notified.",
+    })
+
+
+@router.get("/email/status", summary="Check Email Alert Service Status", tags=["Notifications"])
+async def email_status():
+    """Returns the configuration status of the Gmail alert system."""
+    user = os.getenv("GMAIL_USER", "bipadsathi1@gmail.com").strip()
+    configured = email_service.is_configured()
+    recipients = email_service._get_recipients()
+    return {
+        "configured": configured,
+        "sender": user,
+        "recipients": recipients,
+        "smtp_host": os.getenv("SMTP_HOST", "smtp.gmail.com"),
+        "smtp_port": int(os.getenv("SMTP_PORT", 587)),
+        "note": "Configured and ready" if configured else "GMAIL_APP_PASSWORD not set in .env. Generate a 16-char App Password in Google Account -> Security -> App Passwords."
+    }
+
+
+@router.post("/email/test", summary="Send Test Alert Email", tags=["Notifications"])
+async def test_email(to_email: Optional[str] = Query(default=None, description="Optional recipient email override")):
+    """Sends a test alert email via Gmail SMTP to verify configuration."""
+    subject = "🧪 [विपद्Sathi] Test Emergency Alert Email"
+    html = """
+    <div style="font-family:sans-serif; max-width:500px; padding:20px; border:1px solid #ddd; border-radius:8px;">
+      <h2 style="color:#b91c1c;">विपद्Sathi Email Alert System</h2>
+      <p>This is a test notification confirming that Gmail SMTP alerts from <strong>bipadsathi1@gmail.com</strong> are working successfully.</p>
+      <p style="font-size:12px; color:#666;">Bagmati Disaster & Incident Monitoring Operations</p>
+    </div>
+    """
+    recipients = [to_email] if to_email else None
+    result = email_service.send_email(
+        subject=subject,
+        html_content=html,
+        text_content="विपद्Sathi Email Alert System test notification.",
+        to_emails=recipients
+    )
+    return result
+
+
+@router.get("/alerts/recipients", summary="Get Camera Alert Email Recipients", tags=["Notifications"])
+async def get_alert_recipients():
+    """Returns the list of recipient emails configured to receive live camera detection alerts."""
+    return {
+        "success": True,
+        "sender": email_service.gmail_user,
+        "configured": email_service.is_configured(),
+        "recipients": email_service.get_recipients(),
+        "smtp_host": email_service.smtp_host,
+        "smtp_port": email_service.smtp_port,
+    }
+
+
+@router.post("/alerts/recipients", summary="Add or update alert recipients", tags=["Notifications"])
+async def add_alert_recipient(payload: dict = Body(...)):
+    """
+    Adds an email address or replaces the full list of recipient emails.
+    Accepts {"email": "user@gmail.com"} or {"emails": ["user1@gmail.com", "user2@gmail.com"]}
+    """
+    if "email" in payload:
+        email = str(payload.get("email", "")).strip()
+        if not email or "@" not in email:
+            raise HTTPException(status_code=400, detail="A valid email address is required.")
+        updated = email_service.add_recipient(email)
+    elif "emails" in payload:
+        emails = payload.get("emails", [])
+        if not isinstance(emails, list):
+            raise HTTPException(status_code=400, detail="'emails' must be an array of strings.")
+        updated = email_service.set_recipients(emails)
+    else:
+        raise HTTPException(status_code=400, detail="Provide 'email' or 'emails' in JSON payload.")
+
+    return {
+        "success": True,
+        "message": "Alert recipients updated successfully.",
+        "recipients": updated,
+        "count": len(updated),
+    }
+
+
+@router.delete("/alerts/recipients", summary="Remove an alert recipient", tags=["Notifications"])
+async def remove_alert_recipient(email: str = Query(..., description="Email address to remove")):
+    """Removes an email address from the alert recipients list."""
+    clean_email = email.strip()
+    if not clean_email:
+        raise HTTPException(status_code=400, detail="Email parameter cannot be empty.")
+    updated = email_service.remove_recipient(clean_email)
+    return {
+        "success": True,
+        "message": f"Removed {clean_email} from alert recipients.",
+        "recipients": updated,
+        "count": len(updated),
+    }
+
+
+@router.post("/alerts/recipients/test", summary="Send Test Alert to Recipients", tags=["Notifications"])
+async def test_alert_recipients(payload: dict = Body(default={})):
+    """Sends a sample camera detection alert email to verify delivery to configured recipients."""
+    to_email = payload.get("email")
+    recipients = [to_email.strip()] if to_email else email_service.get_recipients()
+
+    # Create a dummy test frame image
+    dummy_img = np.zeros((360, 640, 3), dtype=np.uint8)
+    dummy_img[:] = (30, 35, 40)
+    cv2.putText(dummy_img, "BIPATSATHI LIVE CAMERA TEST", (40, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 128), 2)
+    cv2.putText(dummy_img, f"Alert System Verification - {time.strftime('%Y-%m-%d %H:%M:%S')}", (40, 210), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (200, 200, 200), 1)
+    ok, buf = cv2.imencode('.jpg', dummy_img)
+    img_bytes = buf.tobytes() if ok else None
+
+    result = email_service.send_detection_email(
+        cam_id=1,
+        class_name="road_accident",
+        confidence=0.942,
+        image_bytes=img_bytes,
+        vehicle_info={
+            "vehicles_line": "1 x car, 1 x bike (simulated test)",
+            "ambulances_line": "1-2"
+        },
+        to_emails=recipients
+    )
+    return result
+
+
 

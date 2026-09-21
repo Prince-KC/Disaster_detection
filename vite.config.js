@@ -89,6 +89,7 @@ export default defineConfig({
         'emergency-contacts-page': resolve(__dirname, 'index/emergency-contacts-page.html'),
         'authority-profile': resolve(__dirname, 'index/authority-profile.html'),
         'authority-settings': resolve(__dirname, 'index/authority-settings.html'),
+        'camera-alert-emails': resolve(__dirname, 'index/camera-alert-emails.html'),
         'authority-signup-page': resolve(__dirname, 'index/authority-signup-page.html'),
         'citizen-signup-page': resolve(__dirname, 'index/citizen-signup-page.html'),
         'incident-report-page': resolve(__dirname, 'index/incident-report-page.html'),

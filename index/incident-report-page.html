@@ -33,6 +33,23 @@
         .confirmation-actions .confirmation-dashboard-link { flex: 0 1 255px; margin: 0; }
         .confirmation-actions .confirmation-secondary-link { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 18px; border: 1px solid var(--line-strong); border-radius: 9px; color: var(--ink); font-size: 13px; font-weight: 600; white-space: nowrap; }
         .confirmation-actions .confirmation-secondary-link:hover { border-color: var(--crimson); color: var(--crimson); background: #fffaf7; }
+
+        /* ── file preview strip ─────────────────────────────────────── */
+        .file-preview-strip { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+        .file-preview-item { position: relative; width: 80px; height: 80px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); background: #f5f1e7; display: flex; align-items: center; justify-content: center; }
+        .file-preview-item img, .file-preview-item video { width: 100%; height: 100%; object-fit: cover; }
+        .file-preview-item .file-icon { font-size: 28px; }
+        .file-preview-item .file-remove { position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; font-size: 11px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
+        .file-preview-item .file-name { position: absolute; bottom: 0; left: 0; right: 0; padding: 2px 4px; background: rgba(0,0,0,.45); color: #fff; font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* ── submit button states ───────────────────────────────────── */
+        .submit-btn.loading { opacity: .7; pointer-events: none; }
+        .submit-btn.loading::after { content: ' \2026'; }
+
+        /* ── upload error message ───────────────────────────────────── */
+        .upload-error { display: none; margin-top: 10px; padding: 10px 14px; border-radius: 6px; background: #fdecea; color: #913030; font-size: 13px; }
+        .upload-error.visible { display: block; }
+
         @media (max-width: 640px) { .report-confirmation { padding: 34px 18px 28px; } .confirmation-icon { width: 116px; height: 116px; } .report-confirmation h1 { white-space: normal; font-size: 32px; } .summary-row { align-items: flex-start; } .confirmation-actions { flex-direction: column; align-items: stretch; } .confirmation-actions .confirmation-dashboard-link { flex-basis: auto; } }
     </style>
 </head>
@@ -64,7 +81,7 @@
                 <p>Share clear details and evidence so the right response team can act quickly.</p>
             </div>
 
-            <form class="stack-form" onsubmit="showReportConfirmation(event)">
+            <form class="stack-form" id="incidentForm">
                 <div class="incident-section">
                     <div class="incident-heading">
                         <h2>Incident details</h2>
@@ -112,13 +129,15 @@
                         <h2>Evidence</h2>
                     </div>
                     <p class="incident-intro">Photos or videos help response teams understand the situation faster.</p>
-                    <div class="upload-box incident-upload">
+                    <div class="upload-box incident-upload" id="uploadBox">
                         <input type="file" id="evidence" accept="image/*,video/*" multiple>
                         <span class="upload-symbol" aria-hidden="true">+</span>
                         <strong>Add photos or videos</strong>
-                        <small>Optional · JPG, PNG or MP4</small>
+                        <small>Optional &middot; JPG, PNG or MP4</small>
                         <label for="evidence" class="upload-action">Choose files</label>
                     </div>
+                    <div class="file-preview-strip" id="filePreviewStrip"></div>
+                    <div class="upload-error" id="uploadError">Could not upload evidence files. The report was still saved — please try again later.</div>
                 </div>
 
                 <div class="incident-note"><span>✓</span> Your report will be routed to the nearest relevant authority for review.</div>
@@ -138,11 +157,11 @@
             <p>Thank you for reporting this incident. The relevant response authority has been notified.</p>
             <div class="confirmation-summary">
                 <h2>Report summary</h2>
-                <div class="summary-row"><span>Report ID</span><strong>RK-2410</strong></div>
+                <div class="summary-row"><span>Report ID</span><strong id="confirmationReportId">RK-??????</strong></div>
                 <div class="summary-row"><span>Incident type</span><strong id="confirmationIncidentType">Road accident</strong></div>
                 <div class="summary-row"><span>Location</span><strong id="confirmationLocation">Submitted location</strong></div>
-                <div class="summary-row"><span>Submitted</span><strong>Today, 10:42 AM</strong></div>
-                <div class="summary-row"><span>Current status</span><strong class="summary-status"><i></i>Submitted</strong></div>
+                <div class="summary-row"><span>Submitted</span><strong id="confirmationTime">—</strong></div>
+                <div class="summary-row"><span>Evidence files</span><strong id="confirmationFiles">0 files</strong></div>
             </div>
             <p class="next-step"><strong>Next:</strong> Your report will be reviewed by the relevant authority.</p>
             <div class="status-timeline" aria-label="Report status timeline">
@@ -155,16 +174,126 @@
         </section>
     </main>
     <script>
-        function showReportConfirmation(event) {
+    (function () {
+        // ── file preview strip ──────────────────────────────────────────
+        var evidenceInput  = document.getElementById('evidence');
+        var previewStrip   = document.getElementById('filePreviewStrip');
+        var selectedFiles  = [];   // DataTransfer-based file list
+
+        evidenceInput.addEventListener('change', function () {
+            // Merge new selections into existing list
+            Array.from(evidenceInput.files).forEach(function (f) {
+                if (!selectedFiles.some(function (e) { return e.name === f.name && e.size === f.size; })) {
+                    selectedFiles.push(f);
+                }
+            });
+            renderPreviews();
+        });
+
+        function renderPreviews() {
+            previewStrip.innerHTML = '';
+            selectedFiles.forEach(function (file, idx) {
+                var item = document.createElement('div');
+                item.className = 'file-preview-item';
+
+                if (file.type.startsWith('image/')) {
+                    var img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.onload = function () { URL.revokeObjectURL(img.src); };
+                    item.appendChild(img);
+                } else if (file.type.startsWith('video/')) {
+                    var vid = document.createElement('video');
+                    vid.src = URL.createObjectURL(file);
+                    vid.muted = true;
+                    item.appendChild(vid);
+                } else {
+                    var ico = document.createElement('span');
+                    ico.className = 'file-icon';
+                    ico.textContent = '\uD83D\uDCC4';
+                    item.appendChild(ico);
+                }
+
+                var nameEl = document.createElement('span');
+                nameEl.className = 'file-name';
+                nameEl.textContent = file.name;
+                item.appendChild(nameEl);
+
+                var removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'file-remove';
+                removeBtn.textContent = '\u00D7';
+                removeBtn.setAttribute('aria-label', 'Remove ' + file.name);
+                (function (i) {
+                    removeBtn.addEventListener('click', function () {
+                        selectedFiles.splice(i, 1);
+                        renderPreviews();
+                    });
+                })(idx);
+                item.appendChild(removeBtn);
+
+                previewStrip.appendChild(item);
+            });
+        }
+
+        // ── form submit ─────────────────────────────────────────────────
+        var form       = document.getElementById('incidentForm');
+        var submitBtn  = form.querySelector('.submit-btn');
+        var errorEl    = document.getElementById('uploadError');
+
+        form.addEventListener('submit', async function (event) {
             event.preventDefault();
-            const incidentType = document.getElementById('incidentType');
-            const location = document.getElementById('location');
+
+            var incidentType = document.getElementById('incidentType');
+            var incidentTime = document.getElementById('incidentTime');
+            var location     = document.getElementById('location');
+            var description  = document.getElementById('description');
+
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            submitBtn.classList.add('loading');
+            submitBtn.textContent = 'Uploading\u2026';
+            errorEl.classList.remove('visible');
+
+            var fd = new FormData();
+            fd.append('incident_type', incidentType.value);
+            fd.append('incident_time', incidentTime.value);
+            fd.append('location',      location.value);
+            fd.append('description',   description.value);
+            selectedFiles.forEach(function (f) { fd.append('evidence', f, f.name); });
+
+            var data;
+            try {
+                var res = await fetch('/api/reports/submit', { method: 'POST', body: fd });
+                data    = await res.json();
+                if (!res.ok || !data.success) throw new Error(data.detail || 'Server error');
+            } catch (err) {
+                console.error('Report submission error:', err);
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = 'Submit incident report \u2192';
+                errorEl.classList.add('visible');
+                errorEl.textContent = 'Submission failed: ' + err.message + '. Please try again.';
+                return;
+            }
+
+            // ── show confirmation ──────────────────────────────────────
+            document.getElementById('confirmationReportId').textContent    = data.report_id || 'RK-??????';
             document.getElementById('confirmationIncidentType').textContent = incidentType.options[incidentType.selectedIndex].text;
-            document.getElementById('confirmationLocation').textContent = location.value;
+            document.getElementById('confirmationLocation').textContent     = location.value;
+            var now = new Date();
+            document.getElementById('confirmationTime').textContent =
+                now.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) +
+                ', ' + now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+            var fc = data.files_saved ? data.files_saved.length : 0;
+            document.getElementById('confirmationFiles').textContent = fc + (fc === 1 ? ' file' : ' files');
+
             document.querySelector('.incident-card').hidden = true;
             document.getElementById('reportConfirmation').hidden = false;
             window.scrollTo({ top: 0, behavior: 'auto' });
-        }
+        });
+    })();
     </script>
 </body>
 

@@ -42,10 +42,19 @@ class Config:
         self.SUPABASE_SERVICE_KEY: str = self._get_required_env("SUPABASE_SERVICE_KEY")
 
         # ----------------------------------------------------------------------
-        # 2. Telegram Bot API Settings (Required for farmer notifications)
+        # 2. Telegram Bot API Settings (Required for notifications)
         # ----------------------------------------------------------------------
         self.TELEGRAM_BOT_TOKEN: str = self._get_required_env("TELEGRAM_BOT_TOKEN")
         self.TELEGRAM_CHAT_ID: str = self._get_required_env("TELEGRAM_CHAT_ID")
+
+        # ----------------------------------------------------------------------
+        # 2b. Gmail SMTP Alert Settings
+        # ----------------------------------------------------------------------
+        self.GMAIL_USER: str = os.getenv("GMAIL_USER", "bipadsathi1@gmail.com").strip()
+        self.GMAIL_APP_PASSWORD: str = os.getenv("GMAIL_APP_PASSWORD", "").strip()
+        self.AUTHORITY_EMAILS: str = os.getenv("AUTHORITY_EMAILS", "bipadsathi1@gmail.com").strip()
+        self.SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com").strip()
+        self.SMTP_PORT: int = self._get_int_env("SMTP_PORT", default=587)
 
         # ----------------------------------------------------------------------
         # 3. Hardware Serial & Camera Settings
