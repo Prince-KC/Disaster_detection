@@ -39,7 +39,6 @@ _PROJECT_ROOT = os.path.abspath(os.path.join(_SCRIPT_DIR, "..", "..", ".."))
 
 _MODEL_CANDIDATES = [
     os.path.join(_PROJECT_ROOT, "detection_model", "my_model", "best.pt"),
-    os.path.join(_PROJECT_ROOT, "detection_model", "my_model", "my_model.pt"),
     os.path.join(_PROJECT_ROOT, "backend", "models", "best.pt"),
     os.getenv("MODEL_PATH", ""),
 ]
@@ -94,14 +93,128 @@ TELEGRAM_CHAT_ID   = os.getenv("TELEGRAM_CHAT_ID",   "").strip()
 DISASTER_DISPLAY: Dict[str, tuple] = {
     "flood":         ("🌊", "FLOOD"),
     "road_accident": ("🚗", "ROAD ACCIDENT"),
+    "car_accident":  ("🚗", "CAR ACCIDENT"),
+    "bike_accident": ("🏍️", "BIKE ACCIDENT"),
+    "bus_accident":  ("🚌", "BUS ACCIDENT"),
     "forest_fire":   ("🔥", "FOREST FIRE"),
     "landslide":     ("⛰️",  "LANDSLIDE"),
 }
 
 
+# Ambulance tier mapping for accident classes (per detected box)
+ACCIDENT_TIERS: Dict[str, tuple] = {
+    "bike_accident": (1, 2, "bike"),
+    "car_accident":  (3, 5, "car"),
+    "bus_accident":  (15, 20, "bus"),
+}
+
+
+def _compute_accident_vehicle_info(detections: Optional[List[Dict[str, Any]]]) -> Dict[str, Any]:
+    """
+    Computes vehicle counts and required ambulance range based on detected accident boxes.
+    Tiers per box:
+      bike_accident -> 1-2 ambulances
+      car_accident  -> 3-5 ambulances
+      bus_accident  -> 15-20 ambulances
+    """
+    counts: Dict[str, int] = {}
+    if detections:
+        for det in detections:
+            cname = det.get("cls_name", "").lower().strip().replace(" ", "_")
+            if cname in ACCIDENT_TIERS:
+                counts[cname] = counts.get(cname, 0) + 1
+
+    if not counts:
+        return {
+            "vehicle_counts": {},
+            "ambulance_low": None,
+            "ambulance_high": None,
+            "vehicles_line": "none identified",
+            "ambulances_line": "unable to estimate - manual assessment required"
+        }
+
+    total_low = 0
+    total_high = 0
+    vehicle_parts = []
+    # Consistent ordering
+    for cname in ["car_accident", "bus_accident", "bike_accident"]:
+        if cname in counts:
+            cnt = counts[cname]
+            low_per, high_per, label = ACCIDENT_TIERS[cname]
+            total_low += cnt * low_per
+            total_high += cnt * high_per
+            vehicle_parts.append(f"{cnt} x {label}")
+
+    return {
+        "vehicle_counts": counts,
+        "ambulance_low": total_low,
+        "ambulance_high": total_high,
+        "vehicles_line": ", ".join(vehicle_parts) if vehicle_parts else "none identified",
+        "ambulances_line": f"{total_low}-{total_high}"
+    }
+
+
+def _record_detection_supabase(cam_id: int, object_class: str, confidence: float,
+                               vehicle_info: Optional[Dict[str, Any]] = None) -> None:
+    """Save disaster detection event to Supabase DB asynchronously."""
+    sup_url = os.getenv("SUPABASE_URL", "").strip().rstrip("/")
+    sup_key = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_KEY", "").strip()
+    if not sup_url or not sup_key:
+        return
+    try:
+        import requests as _req
+        headers = {
+            "apikey": sup_key,
+            "Authorization": f"Bearer {sup_key}",
+            "Content-Type": "application/json",
+            "Prefer": "return=representation"
+        }
+        device_name = f"CAM-0{cam_id}"
+        meta: Dict[str, Any] = {
+            "cam_id": cam_id,
+            "timestamp": datetime.datetime.now().isoformat(),
+            "location": "Bagmati Monitoring Zone"
+        }
+        if vehicle_info:
+            meta["vehicle_counts"] = vehicle_info.get("vehicle_counts", {})
+            meta["ambulance_low"] = vehicle_info.get("ambulance_low")
+            meta["ambulance_high"] = vehicle_info.get("ambulance_high")
+
+        payload = {
+            "device_id": device_name,
+            "object_class": object_class,
+            "confidence": round(float(confidence) * 100, 1),
+            "metadata": meta
+        }
+        url = f"{sup_url}/rest/v1/detections"
+        resp = _req.post(url, json=payload, headers=headers, timeout=5)
+        if resp.status_code in (200, 201):
+            logger.info(f"[Supabase] Logged detection for {device_name}: {object_class}")
+        else:
+            logger.warning(f"[Supabase] Detection insert returned {resp.status_code}: {resp.text[:200]}")
+    except Exception as exc:
+        logger.error(f"[Supabase] Logging error: {exc}")
+
+
 def _send_telegram_alert(cam_id: int, class_name: str, confidence: float,
-                          image_bytes: Optional[bytes] = None) -> None:
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+                          image_bytes: Optional[bytes] = None,
+                          frame_detections: Optional[List[Dict[str, Any]]] = None) -> None:
+    clean_key = class_name.lower().strip().replace(" ", "_")
+    is_accident = clean_key in ("bike_accident", "car_accident", "bus_accident", "road_accident")
+
+    vehicle_info = None
+    if is_accident:
+        vehicle_info = _compute_accident_vehicle_info(frame_detections)
+
+    # Also log to Supabase in background
+    threading.Thread(
+        target=_record_detection_supabase,
+        args=(cam_id, class_name, confidence, vehicle_info),
+        daemon=True
+    ).start()
+
+    chat_ids = [c.strip() for c in TELEGRAM_CHAT_ID.split(",") if c.strip()]
+    if not TELEGRAM_BOT_TOKEN or not chat_ids:
         logger.info(
             f"[Telegram] No token/chat_id — simulated alert cam {cam_id}: "
             f"{class_name} {confidence:.1%}"
@@ -109,31 +222,44 @@ def _send_telegram_alert(cam_id: int, class_name: str, confidence: float,
         return
 
     emoji, label = DISASTER_DISPLAY.get(
-        class_name.lower().replace(" ", "_"), ("🚨", class_name.upper())
+        clean_key, ("🚨", class_name.replace("_", " ").upper())
     )
+
     caption = (
-        f"{emoji} *विपद्Sathi DISASTER ALERT!*\n\n"
-        f"📷 *Camera:* CAM-0{cam_id}\n"
-        f"⚠️ *Event:* {label}\n"
-        f"🎯 *Confidence:* {round(confidence * 100, 1)}%\n"
-        f"⏰ *Time:* {datetime.datetime.now().strftime('%I:%M %p')}\n"
-        f"📍 *Location:* Bagmati Monitoring Zone"
+        f"{emoji} <b>विपद्Sathi DISASTER ALERT!</b>\n\n"
+        f"📷 <b>Camera:</b> CAM-0{cam_id}\n"
+        f"⚠️ <b>Event:</b> {label}\n"
+        f"🎯 <b>Confidence:</b> {round(confidence * 100, 1)}%\n"
+        f"⏰ <b>Time:</b> {datetime.datetime.now().strftime('%I:%M %p')}\n"
+        f"📍 <b>Location:</b> Bagmati Monitoring Zone"
     )
+
+    # For road_accident events, append vehicle and ambulance lines directly after Location
+    if is_accident and vehicle_info is not None:
+        caption += (
+            f"\n🚗 <b>Vehicles Involved:</b> {vehicle_info['vehicles_line']}\n"
+            f"🚑 <b>Ambulances Needed:</b> {vehicle_info['ambulances_line']}"
+        )
+
     try:
         import requests as _req
-        if image_bytes:
-            url  = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
-            files = {"photo": (f"{class_name}.jpg", image_bytes, "image/jpeg")}
-            data  = {"chat_id": TELEGRAM_CHAT_ID, "caption": caption, "parse_mode": "Markdown"}
-            resp  = _req.post(url, data=data, files=files, timeout=10)
-        else:
-            url  = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-            data = {"chat_id": TELEGRAM_CHAT_ID, "text": caption, "parse_mode": "Markdown"}
-            resp = _req.post(url, json=data, timeout=10)
-        if resp.status_code == 200:
-            logger.info(f"[Telegram] Alert sent — cam {cam_id}: {class_name}")
-        else:
-            logger.warning(f"[Telegram] API {resp.status_code}: {resp.text[:200]}")
+        for target_chat_id in chat_ids:
+            try:
+                if image_bytes:
+                    url  = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
+                    files = {"photo": (f"{clean_key}.jpg", image_bytes, "image/jpeg")}
+                    data  = {"chat_id": target_chat_id, "caption": caption, "parse_mode": "HTML"}
+                    resp  = _req.post(url, data=data, files=files, timeout=10)
+                else:
+                    url  = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+                    data = {"chat_id": target_chat_id, "text": caption, "parse_mode": "HTML"}
+                    resp = _req.post(url, json=data, timeout=10)
+                if resp.status_code == 200:
+                    logger.info(f"[Telegram] Alert sent to {target_chat_id} — cam {cam_id}: {label}")
+                else:
+                    logger.warning(f"[Telegram] API {resp.status_code} for {target_chat_id}: {resp.text[:200]}")
+            except Exception as e:
+                logger.error(f"[Telegram] Error sending to {target_chat_id}: {e}")
     except Exception as exc:
         logger.error(f"[Telegram] Send error: {exc}")
 
@@ -197,9 +323,22 @@ async def get_dashboard_summary():
     tags=["Detection"]
 )
 async def get_detections(limit: int = Query(default=50, ge=1, le=200)):
+    records = []
     if _ctrl_ok:
-        return detection_controller.get_detections_history(limit=limit)
-    return {"detections": []}
+        records = detection_controller.get_detections_history(limit=limit)
+    # Ensure vehicle_counts, ambulance_low, ambulance_high are flattened for consumers
+    enriched = []
+    for rec in (records or []):
+        meta = rec.get("metadata") or {}
+        rec_copy = dict(rec)
+        if "vehicle_counts" in meta:
+            rec_copy["vehicle_counts"] = meta.get("vehicle_counts")
+        if "ambulance_low" in meta:
+            rec_copy["ambulance_low"] = meta.get("ambulance_low")
+        if "ambulance_high" in meta:
+            rec_copy["ambulance_high"] = meta.get("ambulance_high")
+        enriched.append(rec_copy)
+    return {"detections": enriched}
 
 
 @router.get(
@@ -291,6 +430,7 @@ class CameraStreamManager:
         self._latest_jpeg:   Dict[int, bytes]            = {}
         self._last_result:   Dict[int, Optional[Dict]]   = {}
         self._online_status: Dict[int, bool]             = {}
+        self._latest_disaster: Dict[int, Dict[str, Any]] = {}
         self._init_lock = threading.Lock()
 
     # ------------------------------------------------------------------
@@ -509,9 +649,23 @@ class CameraStreamManager:
                     ok, buf = cv2.imencode('.jpg', snap, [cv2.IMWRITE_JPEG_QUALITY, 85])
                     if ok:
                         img_bytes = buf.tobytes()
+
+                # Update camera manager's latest confirmed disaster state
+                cname_clean = top["cls_name"].lower().strip().replace(" ", "_")
+                is_acc = cname_clean in ("bike_accident", "car_accident", "bus_accident", "road_accident")
+                v_info = _compute_accident_vehicle_info(detections) if is_acc else None
+                self._latest_disaster[camera_id] = {
+                    "event": top["cls_name"],
+                    "confidence": round(float(top["conf"]) * 100, 1),
+                    "timestamp": datetime.datetime.now().isoformat(),
+                    "vehicle_counts": v_info.get("vehicle_counts", {}) if v_info else {},
+                    "ambulance_low": v_info.get("ambulance_low") if v_info else None,
+                    "ambulance_high": v_info.get("ambulance_high") if v_info else None,
+                }
+
                 threading.Thread(
                     target=_send_telegram_alert,
-                    args=(camera_id + 1, top["cls_name"], top["conf"], img_bytes),
+                    args=(camera_id + 1, top["cls_name"], top["conf"], img_bytes, detections),
                     daemon=True
                 ).start()
                 logger.warning(
@@ -563,13 +717,27 @@ class CameraStreamManager:
             return self._latest_jpeg.get(camera_id, self._create_standby_frame(camera_id))
 
     def get_status(self) -> Dict[str, Any]:
+        cams = []
+        for cid, (cname, ctype) in enumerate([("CAM-01 (Laptop Camera)", "Integrated"),
+                                              ("CAM-02 (USB Webcam)", "External")]):
+            disaster_info = self._latest_disaster.get(cid, {})
+            cam_data: Dict[str, Any] = {
+                "id": cid,
+                "name": cname,
+                "type": ctype,
+                "online": self._online_status.get(cid, False),
+            }
+            if disaster_info:
+                cam_data["latest_event"]    = disaster_info.get("event")
+                cam_data["confidence"]      = disaster_info.get("confidence")
+                cam_data["timestamp"]       = disaster_info.get("timestamp")
+                cam_data["vehicle_counts"]  = disaster_info.get("vehicle_counts", {})
+                cam_data["ambulance_low"]   = disaster_info.get("ambulance_low")
+                cam_data["ambulance_high"]  = disaster_info.get("ambulance_high")
+            cams.append(cam_data)
+
         return {
-            "cameras": [
-                {"id": 0, "name": "CAM-01 (Laptop Camera)", "type": "Integrated",
-                 "online": self._online_status.get(0, False)},
-                {"id": 1, "name": "CAM-02 (USB Webcam)",    "type": "External",
-                 "online": self._online_status.get(1, False)},
-            ],
+            "cameras": cams,
             "total": 2,
             "online_count": sum(
                 1 for v in [self._online_status.get(0, False),
