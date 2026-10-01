@@ -51,6 +51,37 @@
             </div>
         </section>
     </main>
+    <script src="identity.js"></script>
+    <script>
+        const reportId = new URLSearchParams(window.location.search).get('id');
+        const report = window.VipsathiIdentity.getIncidentReports().find(item => item.id === reportId);
+
+        if (report) {
+            const formatDate = value => new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Asia/Kathmandu', day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit',
+            }).format(new Date(value)) + ' NPT';
+            const statusLabel = report.status === 'review' ? 'Under review' : 'Unverified';
+            const top = document.querySelector('.detail-top');
+            top.querySelector('.eyebrow').textContent = `Incident ${report.id} · ${report.source || 'Citizen report'}`;
+            top.querySelector('h1').textContent = report.type;
+            top.querySelector('p').textContent = `${report.location} · ${formatDate(report.createdAt)}`;
+            top.querySelector('.detail-status').textContent = `${report.severity || 'Medium'} · ${statusLabel}`;
+
+            const facts = document.querySelectorAll('.detail-facts strong');
+            [report.source || 'Citizen report', 'Not applicable', report.location, report.severity || 'Medium', statusLabel, formatDate(report.createdAt)]
+                .forEach((value, index) => { facts[index].textContent = value; });
+
+            document.querySelector('.response-suggestion').hidden = true;
+            const evidenceBlock = document.querySelectorAll('.detail-layout > div > .detail-block')[1];
+            evidenceBlock.querySelector('.evidence-box').textContent = 'Citizen-submitted incident report';
+            evidenceBlock.querySelector('p').textContent = report.description || 'No additional description was provided.';
+
+            const firstTimelineItem = document.querySelector('.timeline-item');
+            firstTimelineItem.querySelector('strong').textContent = 'Submitted';
+            firstTimelineItem.querySelector('small').textContent = `${formatDate(report.createdAt)} · Citizen-submitted report.`;
+        }
+    </script>
     <script src="authority.js"></script>
 </body>
 </html>

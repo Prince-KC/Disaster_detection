@@ -138,10 +138,10 @@
             <p>Thank you for reporting this incident. The relevant response authority has been notified.</p>
             <div class="confirmation-summary">
                 <h2>Report summary</h2>
-                <div class="summary-row"><span>Report ID</span><strong>RK-2410</strong></div>
+                <div class="summary-row"><span>Report ID</span><strong id="confirmationReportId">Pending</strong></div>
                 <div class="summary-row"><span>Incident type</span><strong id="confirmationIncidentType">Road accident</strong></div>
                 <div class="summary-row"><span>Location</span><strong id="confirmationLocation">Submitted location</strong></div>
-                <div class="summary-row"><span>Submitted</span><strong>Today, 10:42 AM</strong></div>
+                <div class="summary-row"><span>Submitted</span><strong id="confirmationSubmittedAt">Pending</strong></div>
                 <div class="summary-row"><span>Current status</span><strong class="summary-status"><i></i>Submitted</strong></div>
             </div>
             <p class="next-step"><strong>Next:</strong> Your report will be reviewed by the relevant authority.</p>
@@ -154,13 +154,34 @@
             </div>
         </section>
     </main>
+    <script src="identity.js"></script>
     <script>
         function showReportConfirmation(event) {
             event.preventDefault();
             const incidentType = document.getElementById('incidentType');
             const location = document.getElementById('location');
-            document.getElementById('confirmationIncidentType').textContent = incidentType.options[incidentType.selectedIndex].text;
-            document.getElementById('confirmationLocation').textContent = location.value;
+            const submitted = new Date();
+            const report = window.VipsathiIdentity.saveIncidentReport({
+                id: `RK-${Date.now()}`,
+                type: incidentType.options[incidentType.selectedIndex].text,
+                location: location.value.trim(),
+                description: document.getElementById('description').value.trim(),
+                occurredAt: new Date(document.getElementById('incidentTime').value).toISOString(),
+                source: 'Citizen report',
+                severity: 'Medium',
+                status: 'unverified',
+            });
+            document.getElementById('confirmationReportId').textContent = report.id;
+            document.getElementById('confirmationIncidentType').textContent = report.type;
+            document.getElementById('confirmationLocation').textContent = report.location;
+            document.getElementById('confirmationSubmittedAt').textContent = submitted.toLocaleString('en-GB', {
+                timeZone: 'Asia/Kathmandu',
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            }) + ' NPT';
             document.querySelector('.incident-card').hidden = true;
             document.getElementById('reportConfirmation').hidden = false;
             window.scrollTo({ top: 0, behavior: 'auto' });

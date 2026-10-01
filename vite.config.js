@@ -33,10 +33,18 @@ function disasterImagesPlugin() {
     configurePreviewServer(server) {
       server.middlewares.use('/images', serveImages);
     },
+    transformIndexHtml(html) {
+      return html.replace('</body>', '  <script src="/language.js"></script>\n</body>');
+    },
     generateBundle() {
       for (const imageName of readdirSync(imagesDirectory)) {
         const imagePath = resolve(imagesDirectory, imageName);
         this.emitFile({ type: 'asset', fileName: `images/${imageName}`, source: readFileSync(imagePath) });
+      }
+
+      for (const scriptName of ['authority.js', 'identity.js', 'language.js']) {
+        const scriptPath = resolve(__dirname, 'index', scriptName);
+        this.emitFile({ type: 'asset', fileName: scriptName, source: readFileSync(scriptPath) });
       }
     }
   };

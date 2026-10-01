@@ -29,7 +29,6 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 _disaster_model = None
 _disaster_class_names: Dict[int, str] = {}
 CONF_THRES           = float(os.getenv("CONFIDENCE_THRESHOLD", "0.40"))
-DETECT_EVERY         = 3     # run YOLO every Nth frame
 DEBOUNCE_FRAMES      = 3     # consecutive positives needed before alert fires
 SMS_COOLDOWN_SECONDS = 15    # minimum seconds between Telegram alerts per camera
 
@@ -37,10 +36,17 @@ SMS_COOLDOWN_SECONDS = 15    # minimum seconds between Telegram alerts per camer
 _SCRIPT_DIR   = os.path.dirname(os.path.abspath(__file__))
 _PROJECT_ROOT = os.path.abspath(os.path.join(_SCRIPT_DIR, "..", "..", ".."))
 
-_MODEL_CANDIDATES = [
+_configured_model_path = os.getenv("MODEL_PATH", "").strip()
+_MODEL_CANDIDATES = (
+    [
+        os.path.join(_PROJECT_ROOT, _configured_model_path),
+        os.path.join(_PROJECT_ROOT, "detection_model", _configured_model_path),
+    ]
+    if _configured_model_path and not os.path.isabs(_configured_model_path)
+    else [_configured_model_path] if _configured_model_path else []
+) + [
     os.path.join(_PROJECT_ROOT, "detection_model", "my_model", "best.pt"),
     os.path.join(_PROJECT_ROOT, "backend", "models", "best.pt"),
-    os.getenv("MODEL_PATH", ""),
 ]
 
 
@@ -613,8 +619,11 @@ class CameraStreamManager:
                         conf     = float(box.conf[0].item())
                         cls_id   = int(box.cls[0].item())
                         cls_name = _disaster_class_names.get(cls_id, f"class_{cls_id}")
+                        if cls_name.lower().strip().replace(" ", "_") not in DISASTER_DISPLAY:
+                            continue
                         detections.append({"bbox": xyxy, "conf": conf,
                                            "cls_id": cls_id, "cls_name": cls_name})
+
             except Exception as exc:
                 logger.debug(f"[InfThread {camera_id}] inference error: {exc}")
                 time.sleep(0.1)

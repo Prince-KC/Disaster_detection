@@ -66,9 +66,9 @@
         <div class="authority-header-right"><span class="header-area">Bagmati Control Room</span><button class="header-bell" aria-label="Notifications">◦<i></i></button><a class="authority-user" href="authority-profile.html"><span>AS</span><strong>Alex Sharma</strong><small>Traffic Inspector</small></a><a class="header-logout" href="login-page.html">Log out</a></div>
     </header>
     <main class="authority-layout">
-        <aside class="authority-sidebar"><div class="sidebar-caption">Operations</div><nav><a href="response-dashboard.html">Overview</a><a href="live-cameras.html">Live Cameras</a><a class="active" href="incident-alerts.html">Incident Alerts <b>4</b></a><a href="live-map.html">Live Map</a><a href="incident-history.html">Incident History</a><div class="sidebar-rule"></div><a href="authority-profile.html">Profile</a><a href="authority-settings.html">Settings</a></nav><div class="sidebar-footer"><span class="online-dot"></span>Systems operational<small>Last sync 18:42:09</small></div></aside>
+        <aside class="authority-sidebar"><div class="sidebar-caption">Operations</div><nav><a href="response-dashboard.html">Overview</a><a href="live-cameras.html">Live Cameras</a><a class="active" href="incident-alerts.html">Incident Alerts <b id="attentionNavCount">4</b></a><a href="live-map.html">Live Map</a><a href="incident-history.html">Incident History</a><div class="sidebar-rule"></div><a href="authority-profile.html">Profile</a><a href="authority-settings.html">Settings</a></nav><div class="sidebar-footer"><span class="online-dot"></span>Systems operational<small>Last sync 18:42:09</small></div></aside>
         <section class="authority-content alerts-content">
-            <div class="authority-page-heading alerts-heading"><div><span class="eyebrow">Unified incident inbox</span><h1>Incident Alerts</h1><p>Incoming incidents detected by cameras and reported by citizens in your assigned area.</p><span class="attention-note"><i></i> 4 alerts require attention</span></div></div>
+            <div class="authority-page-heading alerts-heading"><div><span class="eyebrow">Unified incident inbox</span><h1>Incident Alerts</h1><p>Incoming incidents detected by cameras and reported by citizens in your assigned area.</p><span class="attention-note"><i></i> <span id="alertsAttentionCount">4</span> alerts require attention</span></div></div>
             <div class="alert-controls"><div class="search-field"><input id="alertSearch" type="search" placeholder="Search by incident, location, source or ID" aria-label="Search incident alerts"></div><label class="alert-filter" for="alertStatus">Filter by status <select id="alertStatus"><option value="all">All alerts</option><option value="unverified">Unverified</option><option value="review">Under review</option><option value="dispatched">Response dispatched</option><option value="resolved">Resolved</option></select></label></div>
             <section class="alerts-list" id="alertsList" aria-label="Incident alert list">
                 <div class="alerts-list-head"><span>Incident</span><span>Date and time</span><span>Severity</span><span>Status</span><span></span></div>
@@ -81,11 +81,73 @@
             </section>
         </section>
     </main>
+    <script src="identity.js"></script>
     <script>
         const search = document.getElementById('alertSearch');
         const status = document.getElementById('alertStatus');
+        const alertList = document.getElementById('alertsList');
+        const savedReports = window.VipsathiIdentity.getIncidentReports();
+        [...savedReports].reverse().forEach((report) => {
+            const entry = document.createElement('a');
+            entry.className = 'alert-entry';
+            entry.dataset.status = report.status || 'unverified';
+            entry.href = `incident-detail.html?id=${encodeURIComponent(report.id)}`;
+
+            const main = document.createElement('div');
+            main.className = 'entry-main';
+            const source = document.createElement('div');
+            source.className = 'entry-source';
+            const sourceIcon = document.createElement('span');
+            sourceIcon.className = 'source-icon';
+            sourceIcon.textContent = 'C';
+            source.append(sourceIcon, document.createTextNode(` ${report.source || 'Citizen report'} `));
+            const reportId = document.createElement('small');
+            reportId.textContent = `· ${report.id}`;
+            source.appendChild(reportId);
+            const title = document.createElement('strong');
+            title.textContent = report.type;
+            const location = document.createElement('span');
+            location.className = 'entry-location';
+            location.textContent = report.location;
+            const description = document.createElement('span');
+            description.className = 'entry-description';
+            description.textContent = report.description;
+            main.append(source, title, location, description);
+
+            const date = new Date(report.createdAt);
+            const dateText = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Asia/Kathmandu', day: '2-digit', month: 'short', year: 'numeric',
+            }).format(date);
+            const timeText = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Asia/Kathmandu', hour: '2-digit', minute: '2-digit',
+            }).format(date);
+            const time = document.createElement('time');
+            time.className = 'entry-time';
+            time.dateTime = report.createdAt;
+            time.append(dateText, document.createElement('br'), `${timeText} NPT`);
+
+            const severity = document.createElement('span');
+            const severityValue = report.severity || 'Medium';
+            severity.className = `entry-severity ${severityValue.toLowerCase()}`;
+            const severityDot = document.createElement('i');
+            severityDot.className = 'severity-dot';
+            severity.append(severityDot, document.createTextNode(severityValue));
+
+            const statusBadge = document.createElement('span');
+            statusBadge.className = `entry-status ${report.status || 'unverified'}`;
+            statusBadge.textContent = report.status === 'review' ? 'Under review' : 'Unverified';
+            const arrow = document.createElement('span');
+            arrow.className = 'entry-arrow';
+            arrow.textContent = '→';
+
+            entry.append(main, time, severity, statusBadge, arrow);
+            alertList.insertBefore(entry, alertList.children[1] || null);
+        });
         const entries = [...document.querySelectorAll('.alert-entry')];
         const empty = document.getElementById('alertsEmpty');
+        const attentionCount = entries.filter(entry => ['unverified', 'review'].includes(entry.dataset.status)).length;
+        document.getElementById('alertsAttentionCount').textContent = attentionCount;
+        document.getElementById('attentionNavCount').textContent = attentionCount;
         function filterAlerts() {
             const query = search.value.trim().toLowerCase();
             const selectedStatus = status.value;

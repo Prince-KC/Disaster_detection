@@ -291,3 +291,26 @@ h1 {
     transform: rotate(360deg);
   }
 }
+
+@media (max-width: 480px) {
+  .auth-shell,
+  .dashboard-shell {
+    min-height: 100dvh;
+    padding: 18px 14px;
+  }
+
+  .auth-card {
+    padding: 22px 18px;
+    border-radius: 18px;
+  }
+
+  .dashboard-card,
+  .status-card {
+    padding: 24px 20px;
+    border-radius: 18px;
+  }
+
+  .user-meta span {
+    overflow-wrap: anywhere;
+  }
+}

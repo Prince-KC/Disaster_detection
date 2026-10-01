@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+    if (!window.VipsathiIdentity) {
+        const identityScript = document.createElement('script');
+        identityScript.src = 'identity.js';
+        document.head.appendChild(identityScript);
+    }
+
     document.title = document.title.replace(/Rakshak/g, 'विपद्Sathi');
     const textWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const textNodes = [];
