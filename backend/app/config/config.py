@@ -64,6 +64,13 @@ class Config:
         self.CAMERA_INDEX: int = self._get_int_env("CAMERA_INDEX", default=1)
 
         # ----------------------------------------------------------------------
+        # 3b. LoRa Offline Radio Alert Settings
+        # ----------------------------------------------------------------------
+        self.LORA_ENABLED: bool = os.getenv("LORA_ENABLED", "true").lower() in ("true", "1", "t", "yes")
+        self.LORA_PORT: str = os.getenv("LORA_PORT", "COM8")
+        self.LORA_BAUD_RATE: int = self._get_int_env("LORA_BAUD_RATE", default=9600)
+
+        # ----------------------------------------------------------------------
         # 4. YOLO Model Settings
         # ----------------------------------------------------------------------
         self.MODEL_PATH: str = os.getenv("MODEL_PATH", "models/best.pt")

@@ -14,6 +14,7 @@ from fastapi import APIRouter, status, Query, Body, UploadFile, File, Form, HTTP
 from fastapi.responses import StreamingResponse, JSONResponse
 from app.utils.logger import get_logger
 from app.services.email_service import email_service
+from app.services.lora_service import lora_service
 
 # Load env vars (.env file at project root)
 from dotenv import load_dotenv
@@ -282,6 +283,13 @@ def _send_telegram_alert(cam_id: int, class_name: str, confidence: float,
     threading.Thread(
         target=email_service.send_detection_email,
         args=(cam_id, class_name, confidence, image_bytes, vehicle_info),
+        daemon=True
+    ).start()
+
+    # Also dispatch LoRa offline alert to field outposts and siren posts in background
+    threading.Thread(
+        target=lora_service.send_detection_alert,
+        args=(cam_id, class_name, confidence, vehicle_info),
         daemon=True
     ).start()
 
@@ -1112,6 +1120,13 @@ async def submit_report(
         daemon=True
     ).start()
 
+    # Dispatch LoRa offline broadcast to remote field stations in background thread
+    threading.Thread(
+        target=lora_service.send_citizen_alert,
+        args=(report_id, incident_type, location, incident_time),
+        daemon=True
+    ).start()
+
     return JSONResponse({
         "success":       True,
         "report_id":     report_id,
@@ -1241,6 +1256,52 @@ async def test_alert_recipients(payload: dict = Body(default={})):
         to_emails=recipients
     )
     return result
+
+
+# ==============================================================================
+# LoRa Offline Radio Alert API Endpoints
+# ==============================================================================
+@router.get("/alerts/lora/status", summary="Get LoRa Radio Service Status", tags=["LoRa"])
+async def get_lora_status():
+    """Returns real-time connection status, transmitter serial port, and alert statistics for LoRa."""
+    return lora_service.get_status()
+
+
+@router.post("/alerts/lora/test", summary="Send Test LoRa Alert Broadcast", tags=["LoRa"])
+async def test_lora_broadcast():
+    """Broadcasts a verification test packet over LoRa radio."""
+    return lora_service.test_alert()
+
+
+@router.post("/alerts/lora/broadcast", summary="Send Custom LoRa Alert", tags=["LoRa"])
+async def broadcast_custom_lora(payload: dict = Body(default={})):
+    """Broadcasts a custom or simulated emergency disaster message over LoRa radio."""
+    message = payload.get("message")
+    event_type = payload.get("event_type")
+    cam_id = payload.get("cam_id", 1)
+    confidence = payload.get("confidence", 0.95)
+    location = payload.get("location", "Bagmati Monitoring Zone")
+
+    if event_type:
+        return lora_service.send_detection_alert(
+            cam_id=int(cam_id),
+            class_name=str(event_type),
+            confidence=float(confidence),
+            location=str(location),
+        )
+    elif message:
+        return lora_service.send_custom_alert(str(message))
+    else:
+        return lora_service.test_alert()
+
+
+@router.post("/alerts/lora/config", summary="Reconfigure LoRa Port & Settings", tags=["LoRa"])
+async def configure_lora(payload: dict = Body(...)):
+    """Dynamically updates the LoRa serial COM port or baud rate and re-establishes connection."""
+    port = payload.get("port")
+    baud_rate = payload.get("baud_rate")
+    return lora_service.reconnect(port=port, baud_rate=int(baud_rate) if baud_rate else None)
+
 
 
 

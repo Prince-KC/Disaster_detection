@@ -29,6 +29,10 @@ class Settings:
     SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
     SMTP_PORT: int = int(os.getenv("SMTP_PORT", 587))
 
+    LORA_ENABLED: bool = os.getenv("LORA_ENABLED", "true").lower() in ("true", "1", "t", "yes")
+    LORA_PORT: str = os.getenv("LORA_PORT", "COM8")
+    LORA_BAUD_RATE: int = int(os.getenv("LORA_BAUD_RATE", 9600))
+
     MODEL_PATH: str = os.getenv("MODEL_PATH", "models/monkey_detector.pt")
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO").upper()
 

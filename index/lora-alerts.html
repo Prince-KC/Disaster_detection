@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LoRa Offline Alert System — विपद्Sathi Authority</title>
+  <link rel="stylesheet" href="authority.css">
+  <style>
+    .lora-grid {
+      display: grid;
+      gap: 24px;
+      max-width: 960px;
+    }
+    .lora-status-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fbf9f5;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 18px 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .lora-info strong {
+      display: block;
+      font-size: 15px;
+      color: var(--ink);
+      margin-top: 3px;
+    }
+    .lora-info span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 14px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .badge-status.active {
+      background: #e6f4ea;
+      color: #137333;
+    }
+    .badge-status.simulated {
+      background: #e8f0fe;
+      color: #1a73e8;
+    }
+    .badge-status.pending {
+      background: #fef7e0;
+      color: #b06000;
+    }
+    .badge-status i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .quick-alert-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .btn-alert-preset {
+      padding: 10px 16px;
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s;
+    }
+    .btn-alert-preset:hover {
+      border-color: var(--red);
+      color: var(--red);
+      background: #fff8f6;
+      transform: translateY(-1px);
+    }
+    .btn-alert-preset.active {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+    }
+    .btn-broadcast {
+      height: 42px;
+      padding: 0 22px;
+      background: #ad503d;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-broadcast:hover {
+      background: #8e3d2c;
+    }
+    .config-form {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .config-form input, .config-form select {
+      height: 42px;
+      padding: 0 14px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: var(--surface);
+      font-size: 13px;
+      color: var(--ink);
+      outline: none;
+    }
+    .config-form input:focus, .config-form select:focus {
+      border-color: var(--green);
+    }
+    .btn-save-cfg {
+      height: 42px;
+      padding: 0 18px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-save-cfg:hover {
+      background: #1a382d;
+    }
+    .logs-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    .logs-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: #f3efe8;
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .logs-table td {
+      padding: 12px 14px;
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+    }
+    .log-payload {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--ink);
+      background: #f4efe6;
+      padding: 3px 6px;
+      border-radius: 3px;
+      word-break: break-all;
+    }
+    .arch-card {
+      background: #faf7f2;
+      border: 1px dashed var(--line-strong);
+      border-radius: 6px;
+      padding: 16px 20px;
+      font-size: 13px;
+      color: #444;
+      line-height: 1.6;
+    }
+    .arch-diagram {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin: 16px 0;
+    }
+    .arch-node {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .arch-node strong {
+      display: block;
+      color: var(--ink);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .arch-node small {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.4;
+      display: block;
+    }
+    .live-pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #137333;
+      display: inline-block;
+      animation: pulse 1.4s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+  </style>
+</head>
+<body class="authority-app">
+  <header class="authority-header">
+    <a href="response-dashboard.html" class="authority-brand">
+      <span class="brand-mark">R</span>
+      <span><b>विपद्Sathi</b><small>AUTHORITY OPERATIONS</small></span>
+    </a>
+    <div class="authority-header-right">
+      <span class="header-area">Bagmati Control Room</span>
+      <button class="header-bell" aria-label="Notifications">◦<i></i></button>
+      <a class="authority-user" href="authority-profile.html">
+        <span>AS</span>
+        <strong>Alex Sharma</strong>
+        <small>Traffic Inspector</small>
+      </a>
+      <a class="header-logout" href="login-page.html">Log out</a>
+    </div>
+  </header>
+
+  <main class="authority-layout">
+    <aside class="authority-sidebar">
+      <div class="sidebar-caption">Operations</div>
+      <nav aria-label="Authority navigation">
+        <a href="response-dashboard.html">Overview</a>
+        <a href="live-cameras.html">Live Cameras</a>
+        <a href="incident-alerts.html">Incident Alerts <b>4</b></a>
+        <a href="live-map.html">Live Map</a>
+        <a href="incident-history.html">Incident History</a>
+        <div class="sidebar-rule"></div>
+        <a href="camera-alert-emails.html">Alert Emails</a>
+        <a class="active" href="lora-alerts.html">LoRa Offline Alert</a>
+        <a href="authority-profile.html">Profile</a>
+        <a href="authority-settings.html">Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span class="online-dot"></span>Systems operational
+        <small id="syncTime">Syncing&#8230;</small>
+      </div>
+    </aside>
+
+    <section class="authority-content">
+      <div class="authority-page-heading">
+        <div>
+          <span class="eyebrow">Resilient Infrastructure &bull; Zero-Internet Backup</span>
+          <h1>LoRa Offline Emergency Alert System</h1>
+          <p>Long-range (433 MHz RF) disaster early warning transmission. When AI cameras detect landslides, floods, fires, or accidents, emergency packets are broadcast to offline rural communities, ranger outposts, and local siren towers without requiring internet, cellular network, or satellite links.</p>
+        </div>
+      </div>
+
+      <div class="lora-grid">
+        <!-- Radio Gateway Status Banner -->
+        <section class="authority-panel" style="padding: 20px 24px;">
+          <div class="lora-status-banner">
+            <div class="lora-info">
+              <span>LoRa RF Transmitter Gateway:</span>
+              <strong id="loraStatusTitle">Loading Gateway Telemetry...</strong>
+              <small style="color:var(--muted); font-size:11px;" id="loraParams">Band: 433 MHz &bull; SF10 &bull; 125 kHz &bull; Port: COM8 &bull; Baud: 9600</small>
+            </div>
+            <div id="loraBadge" class="badge-status pending">
+              <i></i> <span id="loraBadgeText">Detecting...</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- System Architecture & Zero-Internet Guarantee -->
+        <section class="authority-panel" style="padding: 24px;">
+          <span class="eyebrow">Redundant Safety Network</span>
+          <h2>Offline Emergency Mesh Architecture</h2>
+          <div class="arch-card" style="margin-top:10px;">
+            <p><strong>Tri-Channel Warning Redundancy:</strong> Whenever a disaster is verified by live AI cameras or reported by citizens, विपद्Sathi dispatches through 3 isolated channels simultaneously:</p>
+            <div class="arch-diagram">
+              <div class="arch-node">
+                <strong>1. Telegram Alerts</strong>
+                <small>Instant photo snapshots and incident alerts to designated emergency dispatch bots and responder group channels.</small>
+              </div>
+              <div class="arch-node">
+                <strong>2. Gmail SMTP Alerts</strong>
+                <small>High-priority HTML evidence reports with full camera snapshots delivered to authority mailboxes.</small>
+              </div>
+              <div class="arch-node" style="border: 2px solid #ad503d; background: #fffaf8;">
+                <strong style="color:#ad503d;">3. LoRa RF Offline Radio</strong>
+                <small>Long-range 433MHz emergency packets sent to offline community sirens and buzzer stations with zero internet dependency.</small>
+              </div>
+            </div>
+            <p style="margin-bottom:0; font-size:12px; color:var(--muted);">
+              <strong>Hardware Firmware:</strong> The transmitter uses <code>LORA/Sender/Sender.ino</code> connected via USB Serial (9600 baud). Remote offline village nodes run <code>LORA/Receiver/Receiver.ino</code> with high-decibel piezo buzzers and strobe LEDs.
+            </p>
+          </div>
+        </section>
+
+        <!-- Manual Broadcast & Simulator Controls -->
+        <section class="authority-panel" style="padding: 24px;">
+          <span class="eyebrow">Transmitter Controls</span>
+          <h2>Emergency Broadcast Simulator</h2>
+          <p style="color:var(--muted); font-size:12px; margin:4px 0 14px;">Trigger instant emergency broadcasts over LoRa to test remote receiver sirens or dispatch critical warnings manually.</p>
+
+          <label style="font-size:12px; font-weight:700; color:var(--ink);">Quick Emergency Presets:</label>
+          <div class="quick-alert-btns">
+            <button class="btn-alert-preset" onclick="triggerPreset('landslide', 'CAM-01', 0.96)">
+              ⛰️ Landslide Alert (CAM-01)
+            </button>
+            <button class="btn-alert-preset" onclick="triggerPreset('flood', 'CAM-02', 0.94)">
+              🌊 Flood Warning (CAM-02)
+            </button>
+            <button class="btn-alert-preset" onclick="triggerPreset('road_accident', 'CAM-01', 0.98)">
+              🚗 Severe Road Accident
+            </button>
+            <button class="btn-alert-preset" onclick="triggerPreset('forest_fire', 'CAM-02', 0.92)">
+              🔥 Forest Fire Alert
+            </button>
+            <button class="btn-alert-preset" onclick="triggerTestPing()">
+              📡 Radio Ping / Link Test
+            </button>
+          </div>
+
+          <div style="margin-top:20px;">
+            <label for="customMsgInput" style="display:block; font-size:12px; font-weight:700; color:var(--ink); margin-bottom:6px;">Custom Emergency Message (Max 240 bytes):</label>
+            <div style="display:flex; gap:10px;">
+              <input id="customMsgInput" type="text" placeholder="e.g. FLASH FLOOD ALERT: Evacuate riverside immediately" style="flex:1; height:42px; padding:0 14px; border:1px solid var(--line-strong); border-radius:4px; font-size:13px;">
+              <button class="btn-broadcast" onclick="broadcastCustomMessage()">
+                <span>Broadcast Over LoRa</span>
+              </button>
+            </div>
+            <div id="txFeedback" style="margin-top:8px; font-size:12px; min-height:18px;"></div>
+          </div>
+        </section>
+
+        <!-- Hardware Port Configuration -->
+        <section class="authority-panel" style="padding: 24px;">
+          <span class="eyebrow">Hardware Configuration</span>
+          <h2>Transmitter Serial Port &amp; Baud Rate</h2>
+          <p style="color:var(--muted); font-size:12px; margin:4px 0 14px;">Select the USB COM port where the LoRa Sender module (NodeMCU / ESP32 / Arduino Uno) is plugged in.</p>
+
+          <form id="loraConfigForm" class="config-form" onsubmit="saveLoraConfig(event)">
+            <div style="flex: 1; min-width: 180px;">
+              <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Serial COM Port:</label>
+              <input id="portInput" type="text" placeholder="COM8 or /dev/ttyUSB0" value="COM8" style="width:100%;">
+            </div>
+            <div style="width: 140px;">
+              <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:4px;">Baud Rate:</label>
+              <select id="baudSelect" style="width:100%;">
+                <option value="9600" selected>9600</option>
+                <option value="19200">19200</option>
+                <option value="57600">57600</option>
+                <option value="115200">115200</option>
+              </select>
+            </div>
+            <div style="align-self: flex-end;">
+              <button type="submit" class="btn-save-cfg">Reconfigure Port</button>
+            </div>
+          </form>
+          <div id="detectedPorts" style="margin-top:10px; font-size:12px; color:var(--muted);"></div>
+        </section>
+
+        <!-- Live Radio Transmission Log -->
+        <section class="authority-panel" style="padding: 24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <span class="eyebrow">Transmission Telemetry</span>
+              <h2>Recent LoRa Radio Broadcasts</h2>
+            </div>
+            <span style="font-size:12px; color:var(--muted);">
+              Total Dispatches: <strong id="totalDispatchesCount">0</strong>
+            </span>
+          </div>
+
+          <table class="logs-table">
+            <thead>
+              <tr>
+                <th style="width:150px;">Time</th>
+                <th style="width:90px;">Mode</th>
+                <th>Radio Packet Payload</th>
+              </tr>
+            </thead>
+            <tbody id="logsTableBody">
+              <tr>
+                <td colspan="3" style="text-align:center; color:var(--muted); padding:24px;">Awaiting transmissions...</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "http://localhost:8000/api";
+
+    // -------------------------------------------------------------------------
+    // Fetch and display LoRa gateway telemetry
+    // -------------------------------------------------------------------------
+    async function loadLoraStatus() {
+      try {
+        const res = await fetch(`${API_BASE}/alerts/lora/status`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        // Update title & params
+        const titleEl = document.getElementById("loraStatusTitle");
+        const badgeEl = document.getElementById("loraBadge");
+        const badgeTextEl = document.getElementById("loraBadgeText");
+        const paramsEl = document.getElementById("loraParams");
+        const countEl = document.getElementById("totalDispatchesCount");
+
+        if (data.connected) {
+          titleEl.textContent = `Hardware Radio Active on ${data.port}`;
+          badgeEl.className = "badge-status active";
+          badgeTextEl.innerHTML = '<span class="live-pulse-dot"></span> HARDWARE ONLINE';
+        } else {
+          titleEl.textContent = `Standby / Simulation Mode (${data.port})`;
+          badgeEl.className = "badge-status simulated";
+          badgeTextEl.textContent = "SIMULATION READY";
+        }
+
+        paramsEl.textContent = `Band: ${data.frequency || "433 MHz"} • SF10 • 125 kHz • Port: ${data.port} • Baud: ${data.baud_rate}`;
+        countEl.textContent = data.total_alerts_sent || 0;
+
+        // Update form input values
+        if (!document.getElementById("portInput").matches(":focus")) {
+          document.getElementById("portInput").value = data.port || "COM8";
+        }
+        document.getElementById("baudSelect").value = String(data.baud_rate || 9600);
+
+        // Detected ports
+        const portsEl = document.getElementById("detectedPorts");
+        if (data.available_ports && data.available_ports.length > 0) {
+          portsEl.innerHTML = `Available COM Ports on PC: <strong>${data.available_ports.join(", ")}</strong>`;
+        } else {
+          portsEl.innerHTML = "No physical serial devices currently detected on USB bus (running in reliable simulation backup).";
+        }
+
+        // Render transmission logs
+        renderLogs(data.recent_logs || []);
+
+        document.getElementById("syncTime").textContent = `Sync ${new Date().toLocaleTimeString()}`;
+      } catch (err) {
+        console.warn("Could not fetch LoRa status:", err);
+        document.getElementById("loraBadge").className = "badge-status pending";
+        document.getElementById("loraBadgeText").textContent = "API OFFLINE";
+      }
+    }
+
+    function renderLogs(logs) {
+      const tbody = document.getElementById("logsTableBody");
+      if (!logs || logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--muted); padding:24px;">No broadcast events recorded yet. Click a preset above to test transmission!</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = logs.map(entry => `
+        <tr>
+          <td style="color:var(--muted); white-space:nowrap;">${entry.timestamp || "N/A"}</td>
+          <td>
+            <span class="badge-status ${entry.mode === 'HARDWARE' ? 'active' : 'simulated'}" style="font-size:10px; padding:2px 8px;">
+              ${entry.mode || "SIMULATED"}
+            </span>
+          </td>
+          <td>
+            <div class="log-payload">${escapeHtml(entry.payload || entry.message || "")}</div>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // -------------------------------------------------------------------------
+    // Trigger Presets
+    // -------------------------------------------------------------------------
+    async function triggerPreset(eventType, camId, conf) {
+      const feedback = document.getElementById("txFeedback");
+      feedback.style.color = "var(--muted)";
+      feedback.textContent = `Broadcasting ${eventType.toUpperCase()} over LoRa...`;
+
+      try {
+        const res = await fetch(`${API_BASE}/alerts/lora/broadcast`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            event_type: eventType,
+            cam_id: camId === "CAM-02" ? 2 : 1,
+            confidence: conf,
+            location: "Bagmati Monitoring Zone"
+          })
+        });
+        const result = await res.json();
+        if (result.success) {
+          feedback.style.color = "var(--green)";
+          feedback.textContent = `✓ Packet successfully broadcast (${result.mode} mode)`;
+        } else {
+          feedback.style.color = "var(--red)";
+          feedback.textContent = `✗ Broadcast failed: ${result.error || "Unknown"}`;
+        }
+        loadLoraStatus();
+      } catch (e) {
+        feedback.style.color = "var(--red)";
+        feedback.textContent = `✗ Error connecting to backend: ${e.message}`;
+      }
+    }
+
+    async function triggerTestPing() {
+      const feedback = document.getElementById("txFeedback");
+      feedback.style.color = "var(--muted)";
+      feedback.textContent = "Sending LoRa radio test ping...";
+
+      try {
+        const res = await fetch(`${API_BASE}/alerts/lora/test`, { method: "POST" });
+        const result = await res.json();
+        feedback.style.color = "var(--green)";
+        feedback.textContent = `✓ Test packet transmitted (${result.mode} mode)`;
+        loadLoraStatus();
+      } catch (e) {
+        feedback.style.color = "var(--red)";
+        feedback.textContent = `✗ Error: ${e.message}`;
+      }
+    }
+
+    async function broadcastCustomMessage() {
+      const input = document.getElementById("customMsgInput");
+      const msg = input.value.trim();
+      const feedback = document.getElementById("txFeedback");
+
+      if (!msg) {
+        feedback.style.color = "var(--red)";
+        feedback.textContent = "Please enter an alert message before broadcasting.";
+        return;
+      }
+
+      feedback.style.color = "var(--muted)";
+      feedback.textContent = "Broadcasting custom alert...";
+
+      try {
+        const res = await fetch(`${API_BASE}/alerts/lora/broadcast`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msg })
+        });
+        const result = await res.json();
+        input.value = "";
+        feedback.style.color = "var(--green)";
+        feedback.textContent = `✓ Custom message transmitted over LoRa RF (${result.mode})`;
+        loadLoraStatus();
+      } catch (e) {
+        feedback.style.color = "var(--red)";
+        feedback.textContent = `✗ Error: ${e.message}`;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Reconfigure Port Form
+    // -------------------------------------------------------------------------
+    async function saveLoraConfig(evt) {
+      evt.preventDefault();
+      const port = document.getElementById("portInput").value.trim();
+      const baud = document.getElementById("baudSelect").value;
+      const feedback = document.getElementById("txFeedback");
+
+      feedback.style.color = "var(--muted)";
+      feedback.textContent = `Reconnecting transmitter on ${port} @ ${baud} baud...`;
+
+      try {
+        const res = await fetch(`${API_BASE}/alerts/lora/config`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ port: port, baud_rate: parseInt(baud) })
+        });
+        const result = await res.json();
+        feedback.style.color = result.connected ? "var(--green)" : "#1a73e8";
+        feedback.textContent = result.connected 
+          ? `✓ Successfully connected to LoRa hardware on ${port}!`
+          : `Standby: Hardware not detected on ${port}. Operating in simulated broadcast mode.`;
+        loadLoraStatus();
+      } catch (e) {
+        feedback.style.color = "var(--red)";
+        feedback.textContent = `✗ Configuration error: ${e.message}`;
+      }
+    }
+
+    // Poll status every 3.5s
+    loadLoraStatus();
+    setInterval(loadLoraStatus, 3500);
+  </script>
+</body>
+</html>

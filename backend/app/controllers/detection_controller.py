@@ -9,6 +9,7 @@ from app.models.schemas import DetectionPayload, DetectionResponse
 from app.services.telegram_service import TelegramService
 from app.services.arduino_service import ArduinoController as ArduinoService
 from app.services.supabase_service import SupabaseService
+from app.services.lora_service import lora_service
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -70,6 +71,20 @@ class DetectionController:
             telegram_sent = res.get("success", False)
         except Exception as e:
             logger.error(f"Telegram notification dispatch error: {e}")
+
+        # 4. Dispatch LoRa Offline Alert to field stations
+        try:
+            cam_num = 1
+            if "2" in str(payload.camera_id):
+                cam_num = 2
+            lora_service.send_detection_alert(
+                cam_id=cam_num,
+                class_name=payload.object_class,
+                confidence=payload.confidence,
+                location="Field Boundary"
+            )
+        except Exception as e:
+            logger.error(f"LoRa offline notification dispatch error: {e}")
 
         return DetectionResponse(
             status="success",

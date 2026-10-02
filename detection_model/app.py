@@ -36,6 +36,15 @@ from flask import Flask, Response, render_template, jsonify
 from flask_cors import CORS
 from ultralytics import YOLO
 
+# Optional LoRa offline alert service integration
+try:
+    _backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend"))
+    if _backend_dir not in sys.path:
+        sys.path.insert(0, _backend_dir)
+    from app.services.lora_service import lora_service
+except Exception as _e:
+    lora_service = None
+
 # ---------------------------------------------------------------------------
 # Flask Configuration
 # ---------------------------------------------------------------------------
@@ -545,6 +554,14 @@ class DetectionThread(threading.Thread):
                                 args=(chat_id, self.cam_id, best_monkey_conf, image_bytes),
                                 daemon=True
                             ).start()
+
+                    # LoRa offline alert broadcast (subject to cooldown)
+                    if lora_service and (now - last_sms_time[self.cam_id] <= 1.0 or debounced_alert):
+                        threading.Thread(
+                            target=lora_service.send_detection_alert,
+                            args=(self.cam_id, "MONKEY_ALERT", best_monkey_conf),
+                            daemon=True
+                        ).start()
                     # Supabase logging (only on debounced alert)
                     if debounced_alert:
                         det_time_str = datetime.datetime.now().strftime("Today, %I:%M %p")

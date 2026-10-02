@@ -58,6 +58,12 @@ try:
 except ImportError:
     from app.services.detector_service import MonkeyDetector, detector
 
+# LoRa Service
+try:
+    from lora_service import LoRaService, lora_service
+except ImportError:
+    from app.services.lora_service import LoRaService, lora_service
+
 logger = get_logger("KhetRakshakMain")
 
 
@@ -352,6 +358,11 @@ class KhetRakshakApp:
             self.arduino.disconnect()
         except Exception as e:
             logger.error(f"Error disconnecting Arduino: {e}")
+
+        try:
+            lora_service.disconnect()
+        except Exception as e:
+            logger.error(f"Error disconnecting LoRa: {e}")
 
         logger.info("KhetRakshak system shut down cleanly.")
 
