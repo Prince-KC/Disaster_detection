@@ -484,6 +484,64 @@
       font-weight: 800;
     }
 
+    /* Hardware Serial Connect Button */
+    .hw-connect-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: #f0f7ff;
+      border: 1px solid #c8dff8;
+      border-radius: 6px;
+      flex-wrap: wrap;
+    }
+    .hw-connect-bar.connected {
+      background: #edf7f0;
+      border-color: #b8e2c8;
+    }
+    .hw-connect-bar.error {
+      background: #fff4f3;
+      border-color: #f8c9c6;
+    }
+    .btn-hw-connect {
+      height: 34px;
+      padding: 0 16px;
+      background: #1a73e8;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: background 0.15s, transform 0.1s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-hw-connect:hover  { background: #1558b0; }
+    .btn-hw-connect.danger { background: #c5221f; }
+    .btn-hw-connect.danger:hover { background: #952018; }
+    .btn-hw-connect:disabled { opacity: 0.55; cursor: not-allowed; }
+    .hw-status-text {
+      font-size: 12px;
+      color: #3c4f6b;
+      flex: 1;
+      min-width: 0;
+    }
+    .hw-status-text b { color: #137333; }
+    .hw-status-text.err { color: #c5221f; }
+    .hw-no-serial-notice {
+      padding: 10px 14px;
+      background: #fffbe6;
+      border: 1px solid #f5e68a;
+      border-radius: 6px;
+      font-size: 11px;
+      color: #7a6000;
+      line-height: 1.5;
+    }
+
     @media (max-width: 992px) {
       .lora-two-cards {
         grid-template-columns: 1fr;
@@ -637,6 +695,25 @@
             </div>
 
             <div class="card-body">
+
+              <!-- ── Hardware Serial Connection (Web Serial API) ── -->
+              <div id="hwSerialSection">
+                <!-- Shown when Web Serial API is supported -->
+                <div id="hwConnectBar" class="hw-connect-bar" style="display:none;">
+                  <button id="btnHwConnect" class="btn-hw-connect" onclick="toggleHardwareSerial()">
+                    🔌 Connect Hardware Receiver
+                  </button>
+                  <span id="hwStatusText" class="hw-status-text">
+                    Open the serial port for <strong>Receiver.ino</strong> on this machine (9600 baud).
+                  </span>
+                </div>
+                <!-- Shown when Web Serial API is NOT supported (Firefox, etc.) -->
+                <div id="hwNoSerialNotice" class="hw-no-serial-notice" style="display:none;">
+                  ⚠️ <strong>Hardware receiver:</strong> Web Serial API is not supported in this browser.
+                  Use <strong>Chrome</strong> or <strong>Edge</strong> to connect the physical LoRa receiver directly.
+                </div>
+              </div>
+
               <!-- Physical Community Siren Banner -->
               <div id="sirenBanner" class="siren-state-box">
                 <div style="display:flex; align-items:center; gap:12px;">
@@ -685,7 +762,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                   <strong style="font-size:13px; color:var(--ink);">Data Received from Sender LoRa:</strong>
                   <div style="display:flex; gap:10px; align-items:center;">
-                    <span style="font-size:11px; color:var(--green); font-weight:700;">● Live Stream</span>
+                    <span id="rxSourceLabel" style="font-size:11px; color:var(--green); font-weight:700;">● Live Stream</span>
                     <button onclick="clearReceiverLogs()" style="background:none; border:none; color:var(--muted); font-size:11px; cursor:pointer; text-decoration:underline;">
                       Clear
                     </button>
@@ -704,6 +781,8 @@
               <div style="background:#f9f8f5; border:1px dashed var(--line-strong); border-radius:6px; padding:12px 16px; font-size:11px; color:#555; line-height:1.5;">
                 <strong>Field Station Node Configuration:</strong><br>
                 Node operates completely OFFLINE without Wi-Fi or SIM card using <code>LORA/Receiver/Receiver.ino</code>. Pin <strong>D2</strong> drives the piezo alarm buzzer, and pin <strong>D1</strong> drives the high-intensity strobe LED.
+                <br><br>
+                <strong>Two-laptop setup:</strong> On the <em>receiver laptop</em>, click <strong>Connect Hardware Receiver</strong> above and select the LoRa receiver's COM port to display live incoming packets.
               </div>
 
             </div>
@@ -726,6 +805,160 @@
     let localReceivedLogs = [];
     let localTotalSent = 0;
     let localTotalReceived = 0;
+
+    // =========================================================================
+    // Web Serial API — Hardware LoRa Receiver (Receiver Laptop)
+    // =========================================================================
+    let _serialPort = null;
+    let _serialReader = null;
+    let _serialActive = false;
+    let _hwRxCount = 0;
+    let _hwPackets = [];   // packets captured from hardware serial
+    let _lastHwPayload = null;
+    let _lastHwTimestamp = 0;
+
+    // Detect Web Serial API support on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const bar    = document.getElementById('hwConnectBar');
+      const notice = document.getElementById('hwNoSerialNotice');
+      if ('serial' in navigator) {
+        bar.style.display = 'flex';
+      } else {
+        notice.style.display = 'block';
+      }
+    });
+
+    async function toggleHardwareSerial() {
+      if (_serialActive) {
+        await disconnectHardwareSerial();
+      } else {
+        await connectHardwareSerial();
+      }
+    }
+
+    async function connectHardwareSerial() {
+      const btn  = document.getElementById('btnHwConnect');
+      const txt  = document.getElementById('hwStatusText');
+      const bar  = document.getElementById('hwConnectBar');
+      try {
+        // Let user pick the COM port
+        _serialPort = await navigator.serial.requestPort();
+        await _serialPort.open({ baudRate: 9600 });
+        _serialActive = true;
+
+        btn.textContent = '⏹ Disconnect Receiver';
+        btn.classList.add('danger');
+        bar.classList.add('connected');
+        bar.classList.remove('error');
+        txt.innerHTML = '<b>✓ Hardware receiver connected.</b> Listening for LoRa packets…';
+        txt.className = 'hw-status-text';
+
+        // Update badge
+        document.getElementById('receiverBadge').className = 'badge-status active';
+        document.getElementById('receiverBadgeText').innerHTML = '<span class="live-pulse-dot"></span> HW SERIAL LIVE';
+        document.getElementById('rxSourceLabel').textContent = '🔌 Hardware Serial';
+
+        // Start reading loop in background
+        _readSerialLoop();
+      } catch (err) {
+        bar.classList.add('error');
+        txt.innerHTML = `<span class="err">⚠️ Could not open port: ${escapeHtml(err.message)}</span>`;
+        _serialActive = false;
+        _serialPort  = null;
+      }
+    }
+
+    async function disconnectHardwareSerial() {
+      _serialActive = false;
+      try {
+        if (_serialReader) { await _serialReader.cancel(); _serialReader = null; }
+        if (_serialPort)   { await _serialPort.close();   _serialPort   = null; }
+      } catch (_) {}
+
+      const btn = document.getElementById('btnHwConnect');
+      const txt = document.getElementById('hwStatusText');
+      const bar = document.getElementById('hwConnectBar');
+      btn.textContent = '🔌 Connect Hardware Receiver';
+      btn.classList.remove('danger');
+      bar.classList.remove('connected', 'error');
+      txt.innerHTML = 'Open the serial port for <strong>Receiver.ino</strong> on this machine (9600 baud).';
+      document.getElementById('receiverBadge').className = 'badge-status active';
+      document.getElementById('receiverBadgeText').innerHTML = '<span class="live-pulse-dot"></span> LISTENING 433 MHz';
+      document.getElementById('rxSourceLabel').textContent = '● Live Stream';
+    }
+
+    async function _readSerialLoop() {
+      const decoder = new TextDecoderStream();
+      const inputDone = _serialPort.readable.pipeTo(decoder.writable);
+      const inputStream = decoder.readable;
+      _serialReader = inputStream.getReader();
+
+      let lineBuffer = '';
+      try {
+        while (_serialActive) {
+          const { value, done } = await _serialReader.read();
+          if (done) break;
+          lineBuffer += value;
+          // Process complete lines
+          let newlineIdx;
+          while ((newlineIdx = lineBuffer.indexOf('\n')) !== -1) {
+            const line = lineBuffer.slice(0, newlineIdx).trim();
+            lineBuffer  = lineBuffer.slice(newlineIdx + 1);
+            if (line) _processHardwareLine(line);
+          }
+        }
+      } catch (err) {
+        if (_serialActive) {
+          const txt = document.getElementById('hwStatusText');
+          txt.innerHTML = `<span class="err">⚠️ Serial read error: ${escapeHtml(err.message)}</span>`;
+        }
+      } finally {
+        _serialReader = null;
+        if (_serialActive) disconnectHardwareSerial();
+      }
+    }
+
+    function _processHardwareLine(line) {
+      // Receiver.ino prints: "ALERT PAYLOAD : [विपद्Sathi-LORA] 🚨 ALERT: ..."
+      if (!line.includes('ALERT PAYLOAD')) return;
+
+      const colonIdx = line.indexOf(':', 'ALERT PAYLOAD'.length);
+      if (colonIdx === -1) return;
+      const payload = line.slice(colonIdx + 1).trim();
+      if (!payload) return;
+
+      // Deduplicate: skip identical payload within 3 seconds
+      const now = Date.now();
+      if (payload === _lastHwPayload && (now - _lastHwTimestamp) < 3000) return;
+      _lastHwPayload    = payload;
+      _lastHwTimestamp  = now;
+
+      _hwRxCount++;
+      const ts = new Date().toLocaleTimeString();
+
+      const pkt = {
+        id:        `HW-RX-${_hwRxCount}`,
+        packet_num: _hwRxCount,
+        timestamp:  ts,
+        payload:    payload,
+        rssi:       -70,   // hardware RSSI is printed separately; we don't capture it here
+        snr:        '—',
+        mode:       'HARDWARE_RF',
+        image_url:  null,
+      };
+
+      _hwPackets.unshift(pkt);
+      if (_hwPackets.length > 50) _hwPackets.pop();
+
+      // Update metrics
+      document.getElementById('rxCount').textContent = _hwRxCount;
+
+      // Render the hardware feed (takes priority over backend feed)
+      renderReceivedFeed(_hwPackets);
+
+      // Trigger visual + audio siren
+      triggerVisualSiren(6);
+    }
 
     // -------------------------------------------------------------------------
     // Audio Piezo Siren Synthesizer (replicates Receiver.ino 1800Hz / 1200Hz tone)
@@ -848,25 +1081,28 @@
         renderSentFeed(data.recent_logs || []);
 
         // 2. Update Receiver Card
+        // Skip receiver feed update if hardware serial is active — hardware data takes priority
         const rx = data.receiver || {};
-        const rxCount = document.getElementById("rxCount");
         const rxRssiVal = document.getElementById("rxRssiVal");
         const rxRssiQual = document.getElementById("rxRssiQual");
         const rxSnrVal = document.getElementById("rxSnrVal");
 
-        rxCount.textContent = rx.total_received || 0;
+        if (!_serialActive) {
+          // Only update count & feed from backend when not in hardware mode
+          document.getElementById("rxCount").textContent = rx.total_received || 0;
 
-        if (rx.last_packet) {
-          rxRssiVal.textContent = (rx.last_packet.rssi || -68) + " dBm";
-          rxRssiQual.textContent = rx.last_packet.rssi > -75 ? "Strong link" : "Fair link";
-          rxSnrVal.textContent = rx.last_packet.snr || "+9.8 dB";
+          if (rx.last_packet) {
+            rxRssiVal.textContent = (rx.last_packet.rssi || -68) + " dBm";
+            rxRssiQual.textContent = rx.last_packet.rssi > -75 ? "Strong link" : "Fair link";
+            rxSnrVal.textContent = rx.last_packet.snr || "+9.8 dB";
+          }
+
+          if (rx.siren_active) {
+            triggerVisualSiren(3);
+          }
+
+          renderReceivedFeed(rx.recent_packets || []);
         }
-
-        if (rx.siren_active) {
-          triggerVisualSiren(3);
-        }
-
-        renderReceivedFeed(rx.recent_packets || []);
 
         document.getElementById("syncTime").textContent = `Sync ${new Date().toLocaleTimeString()}`;
       } catch (err) {
