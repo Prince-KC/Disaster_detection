@@ -66,17 +66,12 @@
         <div class="authority-header-right"><span class="header-area">Bagmati Control Room</span><button class="header-bell" aria-label="Notifications">◦<i></i></button><a class="authority-user" href="authority-profile.html"><span>AS</span><strong>Alex Sharma</strong><small>Traffic Inspector</small></a><a class="header-logout" href="login-page.html">Log out</a></div>
     </header>
     <main class="authority-layout">
-        <aside class="authority-sidebar"><div class="sidebar-caption">Operations</div><nav><a href="response-dashboard.html">Overview</a><a href="live-cameras.html">Live Cameras</a><a class="active" href="incident-alerts.html">Incident Alerts <b id="attentionNavCount">4</b></a><a href="live-map.html">Live Map</a><a href="incident-history.html">Incident History</a><div class="sidebar-rule"></div><a href="authority-profile.html">Profile</a><a href="authority-settings.html">Settings</a></nav><div class="sidebar-footer"><span class="online-dot"></span>Systems operational<small>Last sync 18:42:09</small></div></aside>
+        <aside class="authority-sidebar"><div class="sidebar-caption">Operations</div><nav><a href="response-dashboard.html">Overview</a><a href="live-cameras.html">Live Cameras</a><a class="active" href="incident-alerts.html">Incident Alerts</a><a href="live-map.html">Live Map</a><a href="incident-history.html">Incident History</a><div class="sidebar-rule"></div><a href="authority-profile.html">Profile</a><a href="authority-settings.html">Settings</a></nav><div class="sidebar-footer"><span class="online-dot"></span>Systems operational<small>Last sync 18:42:09</small></div></aside>
         <section class="authority-content alerts-content">
-            <div class="authority-page-heading alerts-heading"><div><span class="eyebrow">Unified incident inbox</span><h1>Incident Alerts</h1><p>Incoming incidents detected by cameras and reported by citizens in your assigned area.</p><span class="attention-note"><i></i> <span id="alertsAttentionCount">4</span> alerts require attention</span></div></div>
+            <div class="authority-page-heading alerts-heading"><div><span class="eyebrow">Unified incident inbox</span><h1>Incident Alerts</h1><p>Incoming incidents detected by cameras and reported by citizens in your assigned area.</p><span class="attention-note"><i></i> <span id="alertsAttentionCount">0</span> alerts require attention</span></div></div>
             <div class="alert-controls"><div class="search-field"><input id="alertSearch" type="search" placeholder="Search by incident, location, source or ID" aria-label="Search incident alerts"></div><label class="alert-filter" for="alertStatus">Filter by status <select id="alertStatus"><option value="all">All alerts</option><option value="unverified">Unverified</option><option value="review">Under review</option><option value="dispatched">Response dispatched</option><option value="resolved">Resolved</option></select></label></div>
             <section class="alerts-list" id="alertsList" aria-label="Incident alert list">
                 <div class="alerts-list-head"><span>Incident</span><span>Date and time</span><span>Severity</span><span>Status</span><span></span></div>
-                <a class="alert-entry urgent" data-status="unverified" href="incident-detail.html?id=RK-2418"><div class="entry-main"><div class="entry-source"><span class="source-icon camera">C</span> Camera detected <small>· CAM-KTM-041</small></div><strong>Road accident</strong><span class="entry-location">Tribhuvan Highway, Thankot checkpoint</span><span class="entry-description">Two vehicles collided; traffic is partially blocked.</span></div><time class="entry-time" datetime="2026-09-19T18:37:00+05:45">19 Sep 2026<br>18:37 NPT</time><span class="entry-severity critical"><i class="severity-dot"></i>Critical</span><span class="entry-status unverified">Unverified</span><span class="entry-arrow">→</span></a>
-                <a class="alert-entry" data-status="review" href="incident-detail.html?id=RK-2417"><div class="entry-main"><div class="entry-source"><span class="source-icon">C</span> Citizen report <small>· RK-2417</small></div><strong>Flooded road</strong><span class="entry-location">Tokha Road, Ward 5</span><span class="entry-description">Water across both lanes; visibility is reduced.</span></div><time class="entry-time" datetime="2026-09-19T18:22:00+05:45">19 Sep 2026<br>18:22 NPT</time><span class="entry-severity high"><i class="severity-dot"></i>High</span><span class="entry-status review">Under review</span><span class="entry-arrow">→</span></a>
-                <a class="alert-entry" data-status="dispatched" href="incident-detail.html?id=RK-2414"><div class="entry-main"><div class="entry-source"><span class="source-icon camera">C</span> Camera detected <small>· CAM-KTM-018</small></div><strong>Stopped vehicle</strong><span class="entry-location">Ring Road, Kalanki interchange</span><span class="entry-description">Shoulder obstruction detected by camera AI.</span></div><time class="entry-time" datetime="2026-09-19T17:58:00+05:45">19 Sep 2026<br>17:58 NPT</time><span class="entry-severity"><i class="severity-dot"></i>Medium</span><span class="entry-status dispatched">Response dispatched</span><span class="entry-arrow">→</span></a>
-                <a class="alert-entry" data-status="review" href="incident-detail.html?id=RK-2411"><div class="entry-main"><div class="entry-source"><span class="source-icon">C</span> Citizen report <small>· RK-2411</small></div><strong>Landslide risk</strong><span class="entry-location">Prithvi Highway, Naubise</span><span class="entry-description">Loose soil reported beside the carriageway.</span></div><time class="entry-time" datetime="2026-09-19T17:41:00+05:45">19 Sep 2026<br>17:41 NPT</time><span class="entry-severity high"><i class="severity-dot"></i>High</span><span class="entry-status review">Under review</span><span class="entry-arrow">→</span></a>
-                <a class="alert-entry" data-status="unverified" href="incident-detail.html?id=RK-2408"><div class="entry-main"><div class="entry-source"><span class="source-icon">C</span> Citizen report <small>· RK-2408</small></div><strong>Fire near roadway</strong><span class="entry-location">Chabahil Ring Road, Ward 7</span><span class="entry-description">Smoke visible from an adjacent structure.</span></div><time class="entry-time" datetime="2026-09-19T17:12:00+05:45">19 Sep 2026<br>17:12 NPT</time><span class="entry-severity critical"><i class="severity-dot"></i>Critical</span><span class="entry-status unverified">Unverified</span><span class="entry-arrow">→</span></a>
                 <div class="alerts-empty" id="alertsEmpty">No incident alerts match this search.</div>
             </section>
         </section>
@@ -143,16 +138,20 @@
             entry.append(main, time, severity, statusBadge, arrow);
             alertList.insertBefore(entry, alertList.children[1] || null);
         });
-        const entries = [...document.querySelectorAll('.alert-entry')];
         const empty = document.getElementById('alertsEmpty');
-        const attentionCount = entries.filter(entry => ['unverified', 'review'].includes(entry.dataset.status)).length;
-        document.getElementById('alertsAttentionCount').textContent = attentionCount;
-        document.getElementById('attentionNavCount').textContent = attentionCount;
+
+        function updateAlerts() {
+            const entries = [...alertList.querySelectorAll('.alert-entry')];
+            const attentionCount = entries.filter(entry => ['unverified', 'review'].includes(entry.dataset.status)).length;
+            document.getElementById('alertsAttentionCount').textContent = attentionCount;
+            filterAlerts();
+        }
+
         function filterAlerts() {
             const query = search.value.trim().toLowerCase();
             const selectedStatus = status.value;
             let visible = 0;
-            entries.forEach((entry) => {
+            alertList.querySelectorAll('.alert-entry').forEach((entry) => {
                 const matchesStatus = selectedStatus === 'all' || entry.dataset.status === selectedStatus;
                 const matchesSearch = !query || entry.textContent.toLowerCase().includes(query);
                 entry.hidden = !(matchesStatus && matchesSearch);
@@ -160,8 +159,114 @@
             });
             empty.style.display = visible ? 'none' : 'block';
         }
+
+        function formatDetectionTime(value) {
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return { date: 'Time unavailable', time: '' };
+            return {
+                date: new Intl.DateTimeFormat('en-GB', {
+                    timeZone: 'Asia/Kathmandu', day: '2-digit', month: 'short', year: 'numeric',
+                }).format(date),
+                time: new Intl.DateTimeFormat('en-GB', {
+                    timeZone: 'Asia/Kathmandu', hour: '2-digit', minute: '2-digit',
+                }).format(date),
+            };
+        }
+
+        function renderCameraDetection(detection) {
+            const metadata = detection.metadata || {};
+            const rawTimestamp = detection.created_at || metadata.timestamp || detection.timestamp;
+            const { date, time } = formatDetectionTime(rawTimestamp);
+            const confidence = Number(detection.confidence);
+            const confidencePercent = Number.isFinite(confidence)
+                ? (confidence <= 1 ? confidence * 100 : confidence)
+                : null;
+            const severity = confidencePercent >= 85 ? 'Critical' : confidencePercent >= 65 ? 'High' : 'Medium';
+            const className = String(detection.object_class || 'Disaster detected').replace(/[_-]+/g, ' ');
+            const title = className.replace(/\b\w/g, character => character.toUpperCase());
+            const device = detection.device_id || `CAM-0${metadata.cam_id || ''}`;
+            const id = `DET-${detection.id ?? `${device}-${rawTimestamp || title}`}`;
+            const location = metadata.location || metadata.location_name || 'Monitoring zone';
+
+            const entry = document.createElement('a');
+            entry.className = `alert-entry ${severity === 'Critical' ? 'urgent' : ''}`.trim();
+            entry.dataset.status = 'unverified';
+            entry.dataset.cameraDetectionId = String(detection.id ?? id);
+            entry.href = `incident-detail.html?id=${encodeURIComponent(id)}`;
+
+            const main = document.createElement('div');
+            main.className = 'entry-main';
+            const source = document.createElement('div');
+            source.className = 'entry-source';
+            const sourceIcon = document.createElement('span');
+            sourceIcon.className = 'source-icon camera';
+            sourceIcon.textContent = 'C';
+            source.append(sourceIcon, document.createTextNode(' Camera detected '));
+            const sourceId = document.createElement('small');
+            sourceId.textContent = `· ${device}`;
+            source.appendChild(sourceId);
+
+            const titleElement = document.createElement('strong');
+            titleElement.textContent = title;
+            const locationElement = document.createElement('span');
+            locationElement.className = 'entry-location';
+            locationElement.textContent = location;
+            const description = document.createElement('span');
+            description.className = 'entry-description';
+            description.textContent = confidencePercent === null
+                ? 'Disaster detected by camera AI.'
+                : `Disaster detected by camera AI · ${confidencePercent.toFixed(1)}% confidence`;
+            main.append(source, titleElement, locationElement, description);
+
+            const timeElement = document.createElement('time');
+            timeElement.className = 'entry-time';
+            if (rawTimestamp) timeElement.dateTime = rawTimestamp;
+            timeElement.append(date);
+            if (time) timeElement.append(document.createElement('br'), `${time} NPT`);
+
+            const severityElement = document.createElement('span');
+            severityElement.className = `entry-severity ${severity.toLowerCase()}`;
+            const severityDot = document.createElement('i');
+            severityDot.className = 'severity-dot';
+            severityElement.append(severityDot, document.createTextNode(severity));
+
+            const statusElement = document.createElement('span');
+            statusElement.className = 'entry-status unverified';
+            statusElement.textContent = 'Unverified';
+            const arrow = document.createElement('span');
+            arrow.className = 'entry-arrow';
+            arrow.textContent = '→';
+
+            entry.append(main, timeElement, severityElement, statusElement, arrow);
+            return entry;
+        }
+
+        async function refreshCameraDetections() {
+            const apiBase = window.VIPSATHI_API_BASE_URL
+                || `${window.location.protocol}//${window.location.hostname}:8000`;
+            try {
+                const response = await fetch(`${apiBase.replace(/\/$/, '')}/api/detections?limit=100`, {
+                    cache: 'no-store',
+                    headers: { Accept: 'application/json' },
+                });
+                if (!response.ok) throw new Error(`Detection API returned ${response.status}`);
+                const payload = await response.json();
+                const detections = Array.isArray(payload) ? payload : payload.detections || [];
+                alertList.querySelectorAll('[data-camera-detection-id]').forEach(entry => entry.remove());
+                detections.slice().reverse().forEach(detection => {
+                    alertList.insertBefore(renderCameraDetection(detection), alertList.children[1] || null);
+                });
+            } catch (error) {
+                console.warn('Unable to refresh camera detections:', error);
+            }
+            updateAlerts();
+        }
+
         search.addEventListener('input', filterAlerts);
         status.addEventListener('change', filterAlerts);
+        refreshCameraDetections();
+        window.setInterval(refreshCameraDetections, 15000);
+        updateAlerts();
     </script>
     <script src="authority.js"></script>
 </body>

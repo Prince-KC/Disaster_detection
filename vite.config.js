@@ -42,7 +42,7 @@ function disasterImagesPlugin() {
         this.emitFile({ type: 'asset', fileName: `images/${imageName}`, source: readFileSync(imagePath) });
       }
 
-      for (const scriptName of ['authority.js', 'identity.js', 'language.js']) {
+      for (const scriptName of ['authority.js', 'identity.js', 'language.js', 'overview.js']) {
         const scriptPath = resolve(__dirname, 'index', scriptName);
         this.emitFile({ type: 'asset', fileName: scriptName, source: readFileSync(scriptPath) });
       }
@@ -56,7 +56,7 @@ export default defineConfig({
   server: {
     port: 3000,
     host: '0.0.0.0',
-    strictPort: false,
+    strictPort: true,
     open: '/landing-page.html',
     proxy: {
       '/api': {

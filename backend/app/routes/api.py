@@ -8,11 +8,18 @@ import os
 import time
 import threading
 import datetime
+import uuid
 import numpy as np
 from typing import Optional, Dict, Any, List
-from fastapi import APIRouter, status, Query, Body
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, status, Query, Body, HTTPException
+from fastapi.responses import FileResponse, StreamingResponse
 from app.utils.logger import get_logger
+from app.services.camera_detection_store import (
+    get_camera_detection_image_path,
+    get_camera_detections,
+    save_camera_detection,
+    save_camera_detection_image,
+)
 
 # Load env vars (.env file at project root)
 from dotenv import load_dotenv
@@ -161,7 +168,9 @@ def _compute_accident_vehicle_info(detections: Optional[List[Dict[str, Any]]]) -
 
 
 def _record_detection_supabase(cam_id: int, object_class: str, confidence: float,
-                               vehicle_info: Optional[Dict[str, Any]] = None) -> None:
+                               vehicle_info: Optional[Dict[str, Any]] = None,
+                               detection_id: Optional[str] = None,
+                               timestamp: Optional[str] = None) -> None:
     """Save disaster detection event to Supabase DB asynchronously."""
     sup_url = os.getenv("SUPABASE_URL", "").strip().rstrip("/")
     sup_key = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_KEY", "").strip()
@@ -178,9 +187,12 @@ def _record_detection_supabase(cam_id: int, object_class: str, confidence: float
         device_name = f"CAM-0{cam_id}"
         meta: Dict[str, Any] = {
             "cam_id": cam_id,
-            "timestamp": datetime.datetime.now().isoformat(),
-            "location": "Bagmati Monitoring Zone"
+            "timestamp": timestamp or datetime.datetime.now().isoformat(),
+            "location": "Bagmati Monitoring Zone",
+            "source": "live_camera",
         }
+        if detection_id:
+            meta["event_id"] = detection_id
         if vehicle_info:
             meta["vehicle_counts"] = vehicle_info.get("vehicle_counts", {})
             meta["ambulance_low"] = vehicle_info.get("ambulance_low")
@@ -204,7 +216,9 @@ def _record_detection_supabase(cam_id: int, object_class: str, confidence: float
 
 def _send_telegram_alert(cam_id: int, class_name: str, confidence: float,
                           image_bytes: Optional[bytes] = None,
-                          frame_detections: Optional[List[Dict[str, Any]]] = None) -> None:
+                          frame_detections: Optional[List[Dict[str, Any]]] = None,
+                          detection_id: Optional[str] = None,
+                          timestamp: Optional[str] = None) -> None:
     clean_key = class_name.lower().strip().replace(" ", "_")
     is_accident = clean_key in ("bike_accident", "car_accident", "bus_accident", "road_accident")
 
@@ -215,7 +229,7 @@ def _send_telegram_alert(cam_id: int, class_name: str, confidence: float,
     # Also log to Supabase in background
     threading.Thread(
         target=_record_detection_supabase,
-        args=(cam_id, class_name, confidence, vehicle_info),
+        args=(cam_id, class_name, confidence, vehicle_info, detection_id, timestamp),
         daemon=True
     ).start()
 
@@ -329,9 +343,25 @@ async def get_dashboard_summary():
     tags=["Detection"]
 )
 async def get_detections(limit: int = Query(default=50, ge=1, le=200)):
-    records = []
+    records = get_camera_detections(limit=limit)
     if _ctrl_ok:
-        records = detection_controller.get_detections_history(limit=limit)
+        records.extend(detection_controller.get_detections_history(limit=limit))
+
+    unique_records = []
+    seen_ids = set()
+    for record in records:
+        metadata = record.get("metadata") or {}
+        event_id = metadata.get("event_id")
+        if event_id and event_id in seen_ids:
+            continue
+        if event_id:
+            seen_ids.add(event_id)
+        unique_records.append(record)
+    records = sorted(
+        unique_records,
+        key=lambda record: record.get("created_at") or (record.get("metadata") or {}).get("timestamp") or "",
+        reverse=True,
+    )[:limit]
     # Ensure vehicle_counts, ambulance_low, ambulance_high are flattened for consumers
     enriched = []
     for rec in (records or []):
@@ -345,6 +375,19 @@ async def get_detections(limit: int = Query(default=50, ge=1, le=200)):
             rec_copy["ambulance_high"] = meta.get("ambulance_high")
         enriched.append(rec_copy)
     return {"detections": enriched}
+
+
+@router.get(
+    "/detections/{detection_id}/image",
+    status_code=status.HTTP_200_OK,
+    summary="Get Stored Camera Detection Image",
+    tags=["Detection"],
+)
+async def get_detection_image(detection_id: str):
+    image_path = get_camera_detection_image_path(detection_id)
+    if image_path is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Detection image not found")
+    return FileResponse(image_path, media_type="image/jpeg")
 
 
 @router.get(
@@ -651,11 +694,19 @@ class CameraStreamManager:
             if debounced and detections and (time.time() - last_sms_time >= SMS_COOLDOWN_SECONDS):
                 last_sms_time = time.time()
                 top = detections[0]
+                detection_id = str(uuid.uuid4())
+                detection_timestamp = datetime.datetime.now().isoformat()
                 with self._frame_locks[camera_id]:
                     snap = self._latest_frame.get(camera_id)
                 img_bytes = None
                 if snap is not None:
-                    ok, buf = cv2.imencode('.jpg', snap, [cv2.IMWRITE_JPEG_QUALITY, 85])
+                    evidence_frame = self._annotate(
+                        snap,
+                        {"detections": detections, "debounced": True,
+                         "consecutive_count": debounce_count},
+                        camera_id,
+                    )
+                    ok, buf = cv2.imencode('.jpg', evidence_frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
                     if ok:
                         img_bytes = buf.tobytes()
 
@@ -663,18 +714,48 @@ class CameraStreamManager:
                 cname_clean = top["cls_name"].lower().strip().replace(" ", "_")
                 is_acc = cname_clean in ("bike_accident", "car_accident", "bus_accident", "road_accident")
                 v_info = _compute_accident_vehicle_info(detections) if is_acc else None
+                detection_metadata = {
+                    "cam_id": camera_id + 1,
+                    "timestamp": detection_timestamp,
+                    "location": "Bagmati Monitoring Zone",
+                    "source": "live_camera",
+                    "event_id": detection_id,
+                    "vehicle_counts": v_info.get("vehicle_counts", {}) if v_info else {},
+                    "ambulance_low": v_info.get("ambulance_low") if v_info else None,
+                    "ambulance_high": v_info.get("ambulance_high") if v_info else None,
+                }
+                if img_bytes:
+                    try:
+                        if save_camera_detection_image(detection_id, img_bytes):
+                            detection_metadata["image_url"] = f"/api/detections/{detection_id}/image"
+                    except Exception as exc:
+                        logger.error(f"[DetectionStore] Could not persist camera image: {exc}")
+
                 self._latest_disaster[camera_id] = {
                     "event": top["cls_name"],
                     "confidence": round(float(top["conf"]) * 100, 1),
-                    "timestamp": datetime.datetime.now().isoformat(),
+                    "timestamp": detection_timestamp,
                     "vehicle_counts": v_info.get("vehicle_counts", {}) if v_info else {},
                     "ambulance_low": v_info.get("ambulance_low") if v_info else None,
                     "ambulance_high": v_info.get("ambulance_high") if v_info else None,
                 }
 
+                try:
+                    save_camera_detection(
+                        detection_id=detection_id,
+                        created_at=detection_timestamp,
+                        device_id=f"CAM-0{camera_id + 1}",
+                        object_class=top["cls_name"],
+                        confidence=round(float(top["conf"]) * 100, 1),
+                        metadata=detection_metadata,
+                    )
+                except Exception as exc:
+                    logger.error(f"[DetectionStore] Could not persist camera event: {exc}")
+
                 threading.Thread(
                     target=_send_telegram_alert,
-                    args=(camera_id + 1, top["cls_name"], top["conf"], img_bytes, detections),
+                    args=(camera_id + 1, top["cls_name"], top["conf"], img_bytes, detections,
+                          detection_id, detection_timestamp),
                     daemon=True
                 ).start()
                 logger.warning(

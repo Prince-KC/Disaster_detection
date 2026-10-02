@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "start": "concurrently --kill-others --names \"BACKEND,VITE\" --prefix-colors \"yellow,cyan\" \"python backend/main.py\" \"vite --host 0.0.0.0\"",
+    "start": "concurrently --kill-others --names \"BACKEND,VITE\" --prefix-colors \"yellow,cyan\" \"node start-backend.js\" \"vite --host 0.0.0.0\"",
     "start:backend": "python backend/main.py",
     "start:frontend": "vite --host 0.0.0.0",
     "preview": "vite preview --host 0.0.0.0"

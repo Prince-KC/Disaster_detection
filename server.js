@@ -1,10 +1,16 @@
-const http = require('node:http');
-const fs = require('node:fs');
-const path = require('node:path');
-const { exec } = require('node:child_process');
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import { exec } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const preferredPort = Number(process.env.PORT) || 3000;
 const siteRoot = path.join(__dirname, 'index');
+const imagesRoot = path.join(__dirname, 'images');
+const apiHost = process.env.API_HOST || '127.0.0.1';
+const apiPort = Number(process.env.API_PORT) || 8000;
 
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -14,16 +20,53 @@ const contentTypes = {
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon'
 };
 
 const requestHandler = (request, response) => {
-  const requestPath = decodeURIComponent(request.url.split('?')[0]);
-  const relativePath = requestPath === '/' ? 'landing-page.html' : requestPath.slice(1);
-  const filePath = path.resolve(siteRoot, relativePath);
+  const url = new URL(request.url, 'http://localhost');
+  if (url.pathname === '/api' || url.pathname.startsWith('/api/')) {
+    const proxyRequest = http.request({
+      hostname: apiHost,
+      port: apiPort,
+      path: `${url.pathname}${url.search}`,
+      method: request.method,
+      headers: { ...request.headers, host: `${apiHost}:${apiPort}` }
+    }, (proxyResponse) => {
+      response.writeHead(proxyResponse.statusCode || 502, proxyResponse.headers);
+      proxyResponse.pipe(response);
+    });
 
-  if (!filePath.startsWith(siteRoot + path.sep)) {
+    proxyRequest.on('error', (error) => {
+      console.error(`Backend API proxy failed: ${error.message}`);
+      if (!response.headersSent) {
+        response.writeHead(502, { 'Content-Type': 'text/plain; charset=utf-8' });
+      }
+      response.end('Backend API unavailable');
+    });
+    request.pipe(proxyRequest);
+    return;
+  }
+
+  let requestPath;
+  try {
+    requestPath = decodeURIComponent(url.pathname);
+  } catch {
+    response.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+    response.end('Invalid path');
+    return;
+  }
+
+  const isImage = requestPath.startsWith('/images/');
+  const root = isImage ? imagesRoot : siteRoot;
+  const relativePath = isImage
+    ? requestPath.slice('/images/'.length)
+    : requestPath === '/' ? 'landing-page.html' : requestPath.slice(1);
+  const filePath = path.resolve(root, relativePath);
+
+  if (filePath !== root && !filePath.startsWith(root + path.sep)) {
     response.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
     response.end('Forbidden');
     return;

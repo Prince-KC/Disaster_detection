@@ -24,6 +24,7 @@
         .suggestion-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
         .suggestion-actions button { padding: 8px 10px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); cursor: pointer; font-size: 11px; }
         .suggestion-actions button:hover { border-color: var(--red); color: var(--red); }
+        .detection-evidence-image { width: 100%; height: 100%; object-fit: contain; }
         @media (max-width: 680px) { .recommendation-list { grid-template-columns: 1fr; }.recommendation { border-right: 0; border-bottom: 1px solid var(--line); }.recommendation:last-child { border-bottom: 0; }.suggestion-heading { display: block; }.confidence { display: inline-block; margin-top: 10px; } }
     </style>
 </head>
@@ -33,7 +34,7 @@
         <div class="authority-header-right"><span class="header-area">Bagmati Control Room</span><button class="header-bell" aria-label="Notifications">◦<i></i></button><a class="authority-user" href="authority-profile.html"><span>AS</span><strong>Alex Sharma</strong><small>Traffic Inspector</small></a><a class="header-logout" href="login-page.html">Log out</a></div>
     </header>
     <main class="authority-layout">
-        <aside class="authority-sidebar"><div class="sidebar-caption">Operations</div><nav><a href="response-dashboard.html">Overview</a><a href="live-cameras.html">Live Cameras</a><a class="active" href="incident-alerts.html">Incident Alerts <b>4</b></a><a href="live-map.html">Live Map</a><a href="incident-history.html">Incident History</a><div class="sidebar-rule"></div><a href="authority-profile.html">Profile</a><a href="authority-settings.html">Settings</a></nav><div class="sidebar-footer"><span class="online-dot"></span>Systems operational<small>Last sync 18:42:09</small></div></aside>
+        <aside class="authority-sidebar"><div class="sidebar-caption">Operations</div><nav><a href="response-dashboard.html">Overview</a><a href="live-cameras.html">Live Cameras</a><a class="active" href="incident-alerts.html">Incident Alerts</a><a href="live-map.html">Live Map</a><a href="incident-history.html">Incident History</a><div class="sidebar-rule"></div><a href="authority-profile.html">Profile</a><a href="authority-settings.html">Settings</a></nav><div class="sidebar-footer"><span class="online-dot"></span>Systems operational<small>Last sync 18:42:09</small></div></aside>
         <section class="authority-content">
             <a class="text-link" href="incident-alerts.html">← Back to incident alerts</a>
             <div class="detail-top" style="margin-top:18px"><div><span class="eyebrow">Incident RK-2418 · Camera detected</span><h1>Road accident</h1><p>Tribhuvan Highway, Thankot checkpoint · 19 Sep 2026, 18:37 NPT</p></div><span class="detail-status">Critical · Unverified</span></div>
@@ -44,7 +45,7 @@
                         <div class="detail-facts"><div><span>Source</span><strong>Camera Detected</strong></div><div><span>Camera ID</span><strong>CAM-KTM-041</strong></div><div><span>Exact location</span><strong>Km 12.4, Thankot checkpoint</strong></div><div><span>Severity</span><strong style="color:var(--red)">Critical</strong></div><div><span>Current status</span><strong>Unverified</strong></div><div><span>Reported</span><strong>19 Sep 2026 · 18:37</strong></div></div>
                         <div class="response-suggestion" aria-labelledby="suggestionTitle"><div class="suggestion-heading"><div><span class="eyebrow">Camera-assisted assessment</span><h3 id="suggestionTitle">Suggested response</h3><p>Based on detected vehicle count, collision pattern, and lane obstruction.</p></div><span class="confidence">86% assessment confidence</span></div><div class="recommendation-list"><div class="recommendation"><div class="recommendation-label"><span class="recommendation-icon">A</span> Ambulance</div><strong>2 units</strong><small>Immediate medical support</small></div><div class="recommendation"><div class="recommendation-label"><span class="recommendation-icon">T</span> Traffic police</div><strong>2 units</strong><small>Lane control and diversion</small></div><div class="recommendation"><div class="recommendation-label"><span class="recommendation-icon">F</span> Fire brigade</div><strong>1 unit</strong><small>Rescue readiness</small></div></div><p class="suggestion-reason"><strong>Why:</strong> Two vehicles appear involved, with severe impact markers and eastbound traffic obstruction. Confirm occupants, fire risk, and road conditions before dispatching.</p><div class="suggestion-actions"><button data-action="Suggested resource review" type="button">Review recommendation</button><button data-action="Suggested dispatch" type="button">Use for dispatch draft</button></div></div>
                     </section>
-                    <section class="detail-block"><h2>Evidence</h2><div class="evidence-box">Camera frame preview · 18:37:12 <span style="margin-left:8px;color:var(--red)">[ 2 vehicles detected ]</span></div><p style="color:var(--muted);font-size:12px;margin:12px 0 0">Automatic detection: collision pattern and stationary vehicles. Traffic is partially blocked in the eastbound lane.</p></section>
+                    <section class="detail-block"><h2>Evidence</h2><div class="evidence-box"><img class="detection-evidence-image" alt="Camera frame captured when this detection was reported" hidden><span class="evidence-caption">Camera frame preview</span></div><p style="color:var(--muted);font-size:12px;margin:12px 0 0">Automatic camera detection evidence.</p></section>
                     <section class="detail-block"><h2>Response timeline</h2><div class="timeline"><div class="timeline-item current"><i></i><div><strong>Detected</strong><small>19 Sep 2026 · 18:37 · Camera AI flagged a likely collision.</small></div></div><div class="timeline-item"><i></i><div><strong>Verification pending</strong><small>Awaiting authority review and field confirmation.</small></div></div><div class="timeline-item"><i></i><div><strong>Response dispatched</strong><small>Will be recorded when a response unit is assigned.</small></div></div><div class="timeline-item"><i></i><div><strong>On scene</strong><small>Field team arrival will update this timeline.</small></div></div><div class="timeline-item"><i></i><div><strong>Resolved</strong><small>Incident closure and resolution details will appear here.</small></div></div></div></section>
                 </div>
                 <aside><section class="detail-block"><h2>Required action</h2><div class="detail-actions"><button data-action="Incident verification" class="action-button primary">Verify incident</button><button data-action="False alert review" class="action-button">Mark as false alert</button><button data-action="Response dispatch" class="action-button">Dispatch response</button><button data-action="Status update" class="action-button">Update status</button><button data-action="Incident resolution" class="action-button">Resolve incident</button></div></section><div class="detail-note">This incident is visible on the <a class="text-link" href="live-map.html">live map</a> and will remain in Incident History after resolution.</div></aside>
@@ -55,6 +56,8 @@
     <script>
         const reportId = new URLSearchParams(window.location.search).get('id');
         const report = window.VipsathiIdentity.getIncidentReports().find(item => item.id === reportId);
+        const detailTop = document.querySelector('.detail-top');
+        const evidenceBlock = document.querySelectorAll('.detail-layout > div > .detail-block')[1];
 
         if (report) {
             const formatDate = value => new Intl.DateTimeFormat('en-GB', {
@@ -62,24 +65,128 @@
                 hour: '2-digit', minute: '2-digit',
             }).format(new Date(value)) + ' NPT';
             const statusLabel = report.status === 'review' ? 'Under review' : 'Unverified';
-            const top = document.querySelector('.detail-top');
-            top.querySelector('.eyebrow').textContent = `Incident ${report.id} · ${report.source || 'Citizen report'}`;
-            top.querySelector('h1').textContent = report.type;
-            top.querySelector('p').textContent = `${report.location} · ${formatDate(report.createdAt)}`;
-            top.querySelector('.detail-status').textContent = `${report.severity || 'Medium'} · ${statusLabel}`;
+            detailTop.querySelector('.eyebrow').textContent = `Incident ${report.id} · ${report.source || 'Citizen report'}`;
+            detailTop.querySelector('h1').textContent = report.type;
+            detailTop.querySelector('p').textContent = `${report.location} · ${formatDate(report.createdAt)}`;
+            detailTop.querySelector('.detail-status').textContent = `${report.severity || 'Medium'} · ${statusLabel}`;
 
             const facts = document.querySelectorAll('.detail-facts strong');
             [report.source || 'Citizen report', 'Not applicable', report.location, report.severity || 'Medium', statusLabel, formatDate(report.createdAt)]
                 .forEach((value, index) => { facts[index].textContent = value; });
 
             document.querySelector('.response-suggestion').hidden = true;
-            const evidenceBlock = document.querySelectorAll('.detail-layout > div > .detail-block')[1];
             evidenceBlock.querySelector('.evidence-box').textContent = 'Citizen-submitted incident report';
             evidenceBlock.querySelector('p').textContent = report.description || 'No additional description was provided.';
 
             const firstTimelineItem = document.querySelector('.timeline-item');
             firstTimelineItem.querySelector('strong').textContent = 'Submitted';
             firstTimelineItem.querySelector('small').textContent = `${formatDate(report.createdAt)} · Citizen-submitted report.`;
+        } else if (reportId && reportId.startsWith('DET-')) {
+            detailTop.querySelector('.eyebrow').textContent = `Incident ${reportId} · Camera detected`;
+            detailTop.querySelector('h1').textContent = 'Loading camera detection...';
+            detailTop.querySelector('p').textContent = 'Loading detection details...';
+            detailTop.querySelector('.detail-status').textContent = 'Loading';
+            document.querySelector('.response-suggestion').hidden = true;
+
+            const apiBase = window.VIPSATHI_API_BASE_URL
+                || `${window.location.protocol}//${window.location.hostname}:8000`;
+            const detectionId = reportId.slice(4);
+            const statusLabels = {
+                unverified: 'Unverified',
+                review: 'Under review',
+                dispatched: 'Response dispatched',
+                resolved: 'Resolved',
+            };
+
+            const formatDate = value => {
+                const date = new Date(value);
+                if (Number.isNaN(date.getTime())) return 'Time unavailable';
+                return `${new Intl.DateTimeFormat('en-GB', {
+                    timeZone: 'Asia/Kathmandu', day: '2-digit', month: 'short', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit',
+                }).format(date)} NPT`;
+            };
+
+            const showUnavailable = message => {
+                detailTop.querySelector('h1').textContent = 'Detection unavailable';
+                detailTop.querySelector('p').textContent = message;
+                detailTop.querySelector('.detail-status').textContent = 'Unavailable';
+                evidenceBlock.querySelector('.evidence-box').textContent = 'Camera detection details could not be loaded.';
+                evidenceBlock.querySelector('p').textContent = message;
+            };
+
+            fetch(`${apiBase.replace(/\/$/, '')}/api/detections?limit=100`, {
+                cache: 'no-store',
+                headers: { Accept: 'application/json' },
+            }).then(response => {
+                if (!response.ok) throw new Error(`Detection API returned ${response.status}`);
+                return response.json();
+            }).then(payload => {
+                const detections = Array.isArray(payload) ? payload : payload.detections || [];
+                const detection = detections.find(item => String(item.id) === detectionId);
+                if (!detection) {
+                    showUnavailable('This camera detection is not present in the latest detection history.');
+                    return;
+                }
+
+                const metadata = detection.metadata || {};
+                const createdAt = detection.created_at || metadata.timestamp || detection.timestamp;
+                const device = detection.device_id || `CAM-0${metadata.cam_id || ''}`;
+                const location = metadata.location || metadata.location_name || 'Monitoring zone';
+                const confidence = Number(detection.confidence);
+                const confidencePercent = Number.isFinite(confidence)
+                    ? (confidence <= 1 ? confidence * 100 : confidence)
+                    : null;
+                const severity = confidencePercent >= 85 ? 'Critical' : confidencePercent >= 65 ? 'High' : 'Medium';
+                const title = String(detection.object_class || 'Disaster detected')
+                    .replace(/[_-]+/g, ' ')
+                    .replace(/\b\w/g, character => character.toUpperCase());
+                const status = String(detection.status || 'unverified').toLowerCase();
+                const statusLabel = statusLabels[status] || 'Unverified';
+                const timestampLabel = formatDate(createdAt);
+                const confidenceLabel = confidencePercent === null ? 'unavailable' : `${confidencePercent.toFixed(1)}%`;
+
+                document.title = `${title} · Incident Detail - विपद्Sathi`;
+                detailTop.querySelector('.eyebrow').textContent = `Incident ${reportId} · Camera detected`;
+                detailTop.querySelector('h1').textContent = title;
+                detailTop.querySelector('p').textContent = `${location} · ${timestampLabel}`;
+                detailTop.querySelector('.detail-status').textContent = `${severity} · ${statusLabel}`;
+
+                const facts = document.querySelectorAll('.detail-facts strong');
+                [detection.source || 'Camera detected', device, location, severity, statusLabel, timestampLabel]
+                    .forEach((value, index) => { facts[index].textContent = value; });
+                facts[3].style.color = severity === 'Critical' ? 'var(--red)' : '';
+
+                const evidenceImage = evidenceBlock.querySelector('.detection-evidence-image');
+                const evidenceCaption = evidenceBlock.querySelector('.evidence-caption');
+                const imageUrl = detection.image_url || metadata.image_url;
+                evidenceCaption.textContent = `${title} · ${device} · ${confidenceLabel} confidence`;
+                if (imageUrl) {
+                    evidenceImage.hidden = false;
+                    evidenceCaption.hidden = true;
+                    evidenceImage.src = imageUrl.startsWith('http')
+                        ? imageUrl
+                        : new URL(imageUrl, `${apiBase.replace(/\/$/, '')}/`).href;
+                    evidenceImage.onerror = () => {
+                        evidenceImage.hidden = true;
+                        evidenceCaption.hidden = false;
+                        evidenceCaption.textContent = 'Stored detection image could not be loaded.';
+                    };
+                } else {
+                    evidenceImage.hidden = true;
+                    evidenceCaption.hidden = false;
+                    evidenceCaption.textContent = 'No image was saved for this detection.';
+                }
+                evidenceBlock.querySelector('p').textContent = metadata.description
+                    || `Camera AI detected ${title} at ${location} with ${confidenceLabel} confidence.`;
+
+                const firstTimelineItem = document.querySelector('.timeline-item');
+                firstTimelineItem.querySelector('strong').textContent = 'Detected';
+                firstTimelineItem.querySelector('small').textContent = `${timestampLabel} · Camera AI detected ${title}.`;
+            }).catch(error => {
+                console.warn('Unable to load camera detection details:', error);
+                showUnavailable('The camera detection service could not be reached.');
+            });
         }
     </script>
     <script src="authority.js"></script>
