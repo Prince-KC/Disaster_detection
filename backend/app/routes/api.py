@@ -1279,14 +1279,17 @@ async def broadcast_custom_lora(payload: dict = Body(default={})):
     message = payload.get("message")
     event_type = payload.get("event_type")
     cam_id = payload.get("cam_id", 1)
-    confidence = payload.get("confidence", 0.95)
+    confidence = payload.get("confidence")
     location = payload.get("location", "Bagmati Monitoring Zone")
+
+    vehicle_info = payload.get("vehicle_info")
 
     if event_type:
         return lora_service.send_detection_alert(
             cam_id=int(cam_id),
             class_name=str(event_type),
-            confidence=float(confidence),
+            confidence=float(confidence) if confidence is not None else None,
+            vehicle_info=vehicle_info,
             location=str(location),
         )
     elif message:
@@ -1303,5 +1306,20 @@ async def configure_lora(payload: dict = Body(...)):
     return lora_service.reconnect(port=port, baud_rate=int(baud_rate) if baud_rate else None)
 
 
+@router.get("/alerts/lora/receiver", summary="Get LoRa Receiver Telemetry & Packets", tags=["LoRa"])
+async def get_lora_receiver():
+    """Returns incoming emergency LoRa packets, signal telemetry, and siren state."""
+    return lora_service.get_receiver_data()
 
 
+@router.post("/alerts/lora/receiver/test-siren", summary="Test Community Siren Alarm", tags=["LoRa"])
+async def test_lora_receiver_siren():
+    """Triggers an offline community siren test packet."""
+    return lora_service.trigger_siren_test()
+
+
+@router.post("/alerts/lora/receiver/clear", summary="Clear LoRa Receiver Packets", tags=["LoRa"])
+async def clear_lora_receiver_packets():
+    """Clears stored incoming packets from the receiver node memory."""
+    lora_service.clear_received_packets()
+    return {"success": True, "message": "Receiver logs cleared"}
