@@ -372,6 +372,7 @@ class KhetRakshakApp:
 # ------------------------------------------------------------------------------
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.routes.api import router as api_router
 
 app = FastAPI(
@@ -388,6 +389,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Serve incident snapshot images at /static/...
+_STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+os.makedirs(os.path.join(_STATIC_DIR, "incidents"), exist_ok=True)
+app.mount("/static", StaticFiles(directory=_STATIC_DIR), name="static")
 
 app.include_router(api_router, prefix="/api")
 

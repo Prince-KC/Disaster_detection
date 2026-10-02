@@ -262,6 +262,27 @@ def _record_detection_supabase(cam_id: int, object_class: str, confidence: float
         logger.error(f"[Supabase] Logging error: {exc}")
 
 
+def _save_incident_snapshot(image_bytes: Optional[bytes], cam_id: int, class_name: str) -> Optional[str]:
+    """Saves a JPEG snapshot to backend/static/incidents/ and returns its public URL."""
+    if not image_bytes:
+        return None
+    try:
+        _script_dir = os.path.dirname(os.path.abspath(__file__))
+        _backend_dir = os.path.abspath(os.path.join(_script_dir, "..", ".."))
+        incidents_dir = os.path.join(_backend_dir, "static", "incidents")
+        os.makedirs(incidents_dir, exist_ok=True)
+        ts = int(time.time())
+        safe_name = class_name.lower().replace(" ", "_")
+        filename = f"cam{cam_id}_{safe_name}_{ts}.jpg"
+        filepath = os.path.join(incidents_dir, filename)
+        with open(filepath, "wb") as f:
+            f.write(image_bytes)
+        return f"http://localhost:8000/static/incidents/{filename}"
+    except Exception as exc:
+        logger.warning(f"[Snapshot] Failed to save incident image: {exc}")
+        return None
+
+
 def _send_telegram_alert(cam_id: int, class_name: str, confidence: float,
                           image_bytes: Optional[bytes] = None,
                           frame_detections: Optional[List[Dict[str, Any]]] = None) -> None:
@@ -286,10 +307,17 @@ def _send_telegram_alert(cam_id: int, class_name: str, confidence: float,
         daemon=True
     ).start()
 
-    # Also dispatch LoRa offline alert to field outposts and siren posts in background
+    # Save snapshot and dispatch LoRa offline alert (with incident image URL) to field outposts
+    snapshot_url = _save_incident_snapshot(image_bytes, cam_id, class_name)
     threading.Thread(
         target=lora_service.send_detection_alert,
-        args=(cam_id, class_name, confidence, vehicle_info),
+        kwargs={
+            "cam_id": cam_id,
+            "class_name": class_name,
+            "confidence": confidence,
+            "vehicle_info": vehicle_info,
+            "image_url": snapshot_url,
+        },
         daemon=True
     ).start()
 

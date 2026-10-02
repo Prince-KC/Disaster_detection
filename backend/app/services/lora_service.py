@@ -158,7 +158,8 @@ class LoRaService:
         payload: str,
         rssi: int = -68,
         snr: float = 9.5,
-        mode: str = "SIMULATED_RF"
+        mode: str = "SIMULATED_RF",
+        image_url: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Records an incoming emergency packet at the LoRa receiver node with deduplication."""
         now_time = time.time()
@@ -197,6 +198,7 @@ class LoRaService:
             "mode": mode,
             "siren_active": True,
             "alarm_duration_sec": 6,
+            "image_url": image_url,
         }
 
         self.last_received_packet = rx_packet
@@ -238,11 +240,16 @@ class LoRaService:
             "mode": "HARDWARE" if self.connected else "SIMULATED",
         }
 
-    def broadcast(self, alert_payload: str) -> Dict[str, Any]:
+    def broadcast(
+        self,
+        alert_payload: str,
+        image_url: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Sends an alert payload across LoRa RF via serial transmission to Sender.ino,
         or simulates delivery if no hardware transmitter is connected.
         Automatically updates Receiver node so it captures the transmission.
+        image_url: optional URL to an incident snapshot image captured from live cam.
         """
         alert_payload = alert_payload.strip()
         if not alert_payload:
@@ -279,7 +286,8 @@ class LoRaService:
             payload=alert_payload,
             rssi=-67 if tx_mode == "HARDWARE" else -72,
             snr=10.4 if tx_mode == "HARDWARE" else 9.2,
-            mode=f"{tx_mode}_RF"
+            mode=f"{tx_mode}_RF",
+            image_url=image_url,
         )
 
         return {
@@ -301,11 +309,13 @@ class LoRaService:
         confidence: Optional[float] = None,
         vehicle_info: Optional[Dict[str, Any]] = None,
         location: str = "Bagmati Monitoring Zone",
+        image_url: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Formats and broadcasts a verified camera AI detection emergency alert.
         Packets are kept concise (under 240 bytes) for optimal LoRa airtime and reach.
         Confidence is only included when detected via live camera AI inference.
+        image_url: if provided, attaches the live-cam snapshot to the Receiver card display.
         """
         event_name = class_name.replace("_", " ").upper()
         time_str = datetime.datetime.now().strftime("%I:%M %p")
@@ -315,14 +325,14 @@ class LoRaService:
             conf_pct = round(confidence * 100, 1) if confidence <= 1.0 else round(confidence, 1)
             payload += f" | CONF: {conf_pct}%"
         payload += f" | LOC: {location} | TIME: {time_str}"
-        
+
         if vehicle_info and vehicle_info.get("vehicles_line"):
             v_line = vehicle_info.get("vehicles_line")
             payload += f" | VEHICLES: {v_line}"
             if vehicle_info.get("ambulances_line"):
                 payload += f" | AMBULANCES: {vehicle_info['ambulances_line']}"
 
-        return self.broadcast(payload)
+        return self.broadcast(payload, image_url=image_url)
 
     def send_citizen_alert(
         self,
