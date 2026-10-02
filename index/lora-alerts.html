@@ -190,44 +190,6 @@
       transform: translateY(0);
     }
 
-    /* Config Bar */
-    .config-strip {
-      background: #fbf9f6;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 14px 18px;
-      font-size: 12px;
-    }
-    .config-strip-inputs {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-    .config-strip-inputs input, .config-strip-inputs select {
-      height: 36px;
-      padding: 0 10px;
-      border: 1px solid var(--line-strong);
-      border-radius: 4px;
-      font-size: 12px;
-      background: var(--surface);
-      color: var(--ink);
-    }
-    .btn-small-save {
-      height: 36px;
-      padding: 0 14px;
-      background: var(--green);
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn-small-save:hover {
-      background: #1b382e;
-    }
-
     /* Receiver Metrics Bar */
     .receiver-metrics {
       display: grid;
@@ -612,31 +574,6 @@
                 <div id="senderFeedback" style="margin-top:8px; font-size:12px; min-height:18px;"></div>
               </div>
 
-              <!-- Hardware Port Configuration -->
-              <div class="config-strip">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <strong>Transmitter Hardware Connection</strong>
-                  <span id="senderPortSummary" style="color:var(--muted); font-size:11px;">COM5 @ 9600 baud</span>
-                </div>
-                <form id="loraConfigForm" class="config-strip-inputs" onsubmit="saveLoraConfig(event)">
-                  <div style="flex:1; min-width:140px;">
-                    <input id="portInput" type="text" placeholder="COM5 or COM8" value="COM5" style="width:100%;">
-                  </div>
-                  <div style="width:110px;">
-                    <select id="baudSelect" style="width:100%;">
-                      <option value="9600" selected>9600</option>
-                      <option value="19200">19200</option>
-                      <option value="57600">57600</option>
-                      <option value="115200">115200</option>
-                    </select>
-                  </div>
-                  <button type="submit" class="btn-small-save">Connect Port</button>
-                </form>
-                <div id="detectedPortsMsg" style="margin-top:6px; font-size:11px; color:var(--muted);">
-                  Available Ports: Scanning...
-                </div>
-              </div>
-
               <!-- Sent Packets Outgoing Log -->
               <div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -853,20 +790,24 @@
           senderBadgeText.textContent = "SIMULATED RF (" + data.port + ")";
         }
 
-        portSummary.textContent = `${data.port} @ ${data.baud_rate} baud`;
-        txCount.textContent = data.total_alerts_sent || 0;
+        if (portSummary) {
+          portSummary.textContent = `${data.port} @ ${data.baud_rate} baud`;
+        }
+        if (txCount) {
+          txCount.textContent = data.total_alerts_sent || 0;
+        }
 
-        // Auto-fill port input if not focused
         const portInput = document.getElementById("portInput");
-        if (!portInput.matches(":focus") && data.port) {
+        if (portInput && !portInput.matches(":focus") && data.port) {
           portInput.value = data.port;
         }
 
-        // Available ports
-        if (data.available_ports && data.available_ports.length > 0) {
-          portsMsg.innerHTML = `Available COM Ports on PC: <strong>${data.available_ports.join(", ")}</strong>`;
-        } else {
-          portsMsg.innerHTML = "No physical COM ports detected. Running in reliable radio mesh simulation.";
+        if (portsMsg) {
+          if (data.available_ports && data.available_ports.length > 0) {
+            portsMsg.innerHTML = `Available COM Ports on PC: <strong>${data.available_ports.join(", ")}</strong>`;
+          } else {
+            portsMsg.innerHTML = "No physical COM ports detected. Running in reliable radio mesh simulation.";
+          }
         }
 
         // Render Sent Packets
