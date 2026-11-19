@@ -183,11 +183,13 @@
     <script>
         function showVerificationConfirmation(event) {
             event.preventDefault();
+            window.VipsathiIdentity.registerAuthority();
             document.getElementById('authorityFormView').hidden = true;
             document.getElementById('verificationConfirmation').hidden = false;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
+    <script src="identity.js"></script>
 </body>
 
 </html>

@@ -21,6 +21,7 @@ build/
 .env
 .env.local
 .env.*.local
+.env.example
 
 # Logs
 *.log
@@ -31,6 +32,8 @@ detection_model/prediction_log.txt
 traced_model.pt
 **/my_model/data/images/
 **/my_model/train/
+backend/data/*.sqlite3
+backend/data/detection_images/
 
 # IDE / Editor Settings
 .vscode/

@@ -124,6 +124,7 @@
             </section>
         </section>
     </main>
+<<<<<<< HEAD
 
     <script>
     (() => {
@@ -266,6 +267,199 @@
         setInterval(pollLiveAlerts, 5000);
         refreshCounts();
     })();
+=======
+    <script src="identity.js"></script>
+    <script>
+        const search = document.getElementById('alertSearch');
+        const status = document.getElementById('alertStatus');
+        const alertList = document.getElementById('alertsList');
+        const savedReports = window.VipsathiIdentity.getIncidentReports();
+        [...savedReports].reverse().forEach((report) => {
+            const entry = document.createElement('a');
+            entry.className = 'alert-entry';
+            entry.dataset.status = report.status || 'unverified';
+            entry.href = `incident-detail.html?id=${encodeURIComponent(report.id)}`;
+
+            const main = document.createElement('div');
+            main.className = 'entry-main';
+            const source = document.createElement('div');
+            source.className = 'entry-source';
+            const sourceIcon = document.createElement('span');
+            sourceIcon.className = 'source-icon';
+            sourceIcon.textContent = 'C';
+            source.append(sourceIcon, document.createTextNode(` ${report.source || 'Citizen report'} `));
+            const reportId = document.createElement('small');
+            reportId.textContent = `· ${report.id}`;
+            source.appendChild(reportId);
+            const title = document.createElement('strong');
+            title.textContent = report.type;
+            const location = document.createElement('span');
+            location.className = 'entry-location';
+            location.textContent = report.location;
+            const description = document.createElement('span');
+            description.className = 'entry-description';
+            description.textContent = report.description;
+            main.append(source, title, location, description);
+
+            const date = new Date(report.createdAt);
+            const dateText = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Asia/Kathmandu', day: '2-digit', month: 'short', year: 'numeric',
+            }).format(date);
+            const timeText = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Asia/Kathmandu', hour: '2-digit', minute: '2-digit',
+            }).format(date);
+            const time = document.createElement('time');
+            time.className = 'entry-time';
+            time.dateTime = report.createdAt;
+            time.append(dateText, document.createElement('br'), `${timeText} NPT`);
+
+            const severity = document.createElement('span');
+            const severityValue = report.severity || 'Medium';
+            severity.className = `entry-severity ${severityValue.toLowerCase()}`;
+            const severityDot = document.createElement('i');
+            severityDot.className = 'severity-dot';
+            severity.append(severityDot, document.createTextNode(severityValue));
+
+            const statusBadge = document.createElement('span');
+            statusBadge.className = `entry-status ${report.status || 'unverified'}`;
+            statusBadge.textContent = report.status === 'review' ? 'Under review' : 'Unverified';
+            const arrow = document.createElement('span');
+            arrow.className = 'entry-arrow';
+            arrow.textContent = '→';
+
+            entry.append(main, time, severity, statusBadge, arrow);
+            alertList.insertBefore(entry, alertList.children[1] || null);
+        });
+        const empty = document.getElementById('alertsEmpty');
+
+        function updateAlerts() {
+            const entries = [...alertList.querySelectorAll('.alert-entry')];
+            const attentionCount = entries.filter(entry => ['unverified', 'review'].includes(entry.dataset.status)).length;
+            document.getElementById('alertsAttentionCount').textContent = attentionCount;
+            filterAlerts();
+        }
+
+        function filterAlerts() {
+            const query = search.value.trim().toLowerCase();
+            const selectedStatus = status.value;
+            let visible = 0;
+            alertList.querySelectorAll('.alert-entry').forEach((entry) => {
+                const matchesStatus = selectedStatus === 'all' || entry.dataset.status === selectedStatus;
+                const matchesSearch = !query || entry.textContent.toLowerCase().includes(query);
+                entry.hidden = !(matchesStatus && matchesSearch);
+                if (!entry.hidden) visible += 1;
+            });
+            empty.style.display = visible ? 'none' : 'block';
+        }
+
+        function formatDetectionTime(value) {
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return { date: 'Time unavailable', time: '' };
+            return {
+                date: new Intl.DateTimeFormat('en-GB', {
+                    timeZone: 'Asia/Kathmandu', day: '2-digit', month: 'short', year: 'numeric',
+                }).format(date),
+                time: new Intl.DateTimeFormat('en-GB', {
+                    timeZone: 'Asia/Kathmandu', hour: '2-digit', minute: '2-digit',
+                }).format(date),
+            };
+        }
+
+        function renderCameraDetection(detection) {
+            const metadata = detection.metadata || {};
+            const rawTimestamp = detection.created_at || metadata.timestamp || detection.timestamp;
+            const { date, time } = formatDetectionTime(rawTimestamp);
+            const confidence = Number(detection.confidence);
+            const confidencePercent = Number.isFinite(confidence)
+                ? (confidence <= 1 ? confidence * 100 : confidence)
+                : null;
+            const severity = confidencePercent >= 85 ? 'Critical' : confidencePercent >= 65 ? 'High' : 'Medium';
+            const className = String(detection.object_class || 'Disaster detected').replace(/[_-]+/g, ' ');
+            const title = className.replace(/\b\w/g, character => character.toUpperCase());
+            const device = detection.device_id || `CAM-0${metadata.cam_id || ''}`;
+            const id = `DET-${detection.id ?? `${device}-${rawTimestamp || title}`}`;
+            const location = metadata.location || metadata.location_name || 'Monitoring zone';
+
+            const entry = document.createElement('a');
+            entry.className = `alert-entry ${severity === 'Critical' ? 'urgent' : ''}`.trim();
+            entry.dataset.status = 'unverified';
+            entry.dataset.cameraDetectionId = String(detection.id ?? id);
+            entry.href = `incident-detail.html?id=${encodeURIComponent(id)}`;
+
+            const main = document.createElement('div');
+            main.className = 'entry-main';
+            const source = document.createElement('div');
+            source.className = 'entry-source';
+            const sourceIcon = document.createElement('span');
+            sourceIcon.className = 'source-icon camera';
+            sourceIcon.textContent = 'C';
+            source.append(sourceIcon, document.createTextNode(' Camera detected '));
+            const sourceId = document.createElement('small');
+            sourceId.textContent = `· ${device}`;
+            source.appendChild(sourceId);
+
+            const titleElement = document.createElement('strong');
+            titleElement.textContent = title;
+            const locationElement = document.createElement('span');
+            locationElement.className = 'entry-location';
+            locationElement.textContent = location;
+            const description = document.createElement('span');
+            description.className = 'entry-description';
+            description.textContent = confidencePercent === null
+                ? 'Disaster detected by camera AI.'
+                : `Disaster detected by camera AI · ${confidencePercent.toFixed(1)}% confidence`;
+            main.append(source, titleElement, locationElement, description);
+
+            const timeElement = document.createElement('time');
+            timeElement.className = 'entry-time';
+            if (rawTimestamp) timeElement.dateTime = rawTimestamp;
+            timeElement.append(date);
+            if (time) timeElement.append(document.createElement('br'), `${time} NPT`);
+
+            const severityElement = document.createElement('span');
+            severityElement.className = `entry-severity ${severity.toLowerCase()}`;
+            const severityDot = document.createElement('i');
+            severityDot.className = 'severity-dot';
+            severityElement.append(severityDot, document.createTextNode(severity));
+
+            const statusElement = document.createElement('span');
+            statusElement.className = 'entry-status unverified';
+            statusElement.textContent = 'Unverified';
+            const arrow = document.createElement('span');
+            arrow.className = 'entry-arrow';
+            arrow.textContent = '→';
+
+            entry.append(main, timeElement, severityElement, statusElement, arrow);
+            return entry;
+        }
+
+        async function refreshCameraDetections() {
+            const apiBase = window.VIPSATHI_API_BASE_URL
+                || `${window.location.protocol}//${window.location.hostname}:8000`;
+            try {
+                const response = await fetch(`${apiBase.replace(/\/$/, '')}/api/detections?limit=100`, {
+                    cache: 'no-store',
+                    headers: { Accept: 'application/json' },
+                });
+                if (!response.ok) throw new Error(`Detection API returned ${response.status}`);
+                const payload = await response.json();
+                const detections = Array.isArray(payload) ? payload : payload.detections || [];
+                alertList.querySelectorAll('[data-camera-detection-id]').forEach(entry => entry.remove());
+                detections.slice().reverse().forEach(detection => {
+                    alertList.insertBefore(renderCameraDetection(detection), alertList.children[1] || null);
+                });
+            } catch (error) {
+                console.warn('Unable to refresh camera detections:', error);
+            }
+            updateAlerts();
+        }
+
+        search.addEventListener('input', filterAlerts);
+        status.addEventListener('change', filterAlerts);
+        refreshCameraDetections();
+        window.setInterval(refreshCameraDetections, 15000);
+        updateAlerts();
+>>>>>>> samriddhi
     </script>
 
     <script src="authority.js"></script>

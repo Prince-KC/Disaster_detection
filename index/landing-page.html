@@ -1238,8 +1238,50 @@
                 padding-right: 18px;
             }
 
+            .nav {
+                gap: 8px;
+                padding: 8px 12px;
+            }
+
+            .brand {
+                gap: 7px;
+            }
+
+            .brand-mark {
+                width: 44px;
+                height: 44px;
+            }
+
+            .brand-text b {
+                font-size: 20px;
+                letter-spacing: 0;
+            }
+
+            .nav-actions {
+                gap: 6px;
+            }
+
+            .nav-actions .btn-sm {
+                padding: 7px 9px;
+                font-size: 12px;
+            }
+
             .hero {
                 padding: 70px 0 60px;
+            }
+
+            .hero-visual {
+                position: relative;
+                inset: auto;
+                width: calc(100% - 36px);
+                min-width: 0;
+                max-width: 500px;
+                margin: 28px auto 0;
+            }
+
+            .hero-visual img {
+                height: auto;
+                object-fit: contain;
             }
 
             .hero-ctas .btn {
@@ -1306,7 +1348,7 @@
     <main>
 
         <!-- HERO -->
-        <section class="hero" style="padding-bottom:150px;">
+        <section class="hero">
             <!-- animated alert dot overlay -->
             <svg class="hero-mountains" viewBox="0 0 1440 520" preserveAspectRatio="none" style="height:420px; pointer-events:none;">
                 <!-- bottom gradient fade -->
